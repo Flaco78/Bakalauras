@@ -1,13 +1,11 @@
 package org.example.backend.controller;
 
 import org.example.backend.model.ChildProfile;
-import org.example.backend.model.User;
 import org.example.backend.service.ChildProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
