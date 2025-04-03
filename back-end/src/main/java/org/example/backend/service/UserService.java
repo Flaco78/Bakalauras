@@ -1,6 +1,8 @@
 package org.example.backend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.model.Role;
+import org.example.backend.model.RoleRepository;
 import org.example.backend.model.User;
 import org.example.backend.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -8,12 +10,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // Get all users
@@ -39,22 +43,35 @@ public class UserService {
             throw new IllegalArgumentException("Password cannot be empty");
         }
 
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            Role userRole = roleRepository.findByName("USER")
+                    .orElseGet(() -> roleRepository.save(new Role("USER")));
+            user.setRoles(Set.of(userRole));
+        }
+
         return userRepository.save(user);
     }
 
     // Update user
-    public Optional<User> updateUser(Long userId, User user, User updatedUser) {
-        if (userRepository.existsById(userId)) {
-            user.setId(userId);
+    public Optional<User> updateUser(Long userId, User updatedUser) {
+        return userRepository.findById(userId).map(user -> {
             user.setEmail(updatedUser.getEmail());
+
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
                 String encryptedPassword = bCryptPasswordEncoder.encode(updatedUser.getPassword());
                 user.setPassword(encryptedPassword);
             }
 
-            return Optional.of(userRepository.save(user));
-        }
-        return Optional.empty();
+            if (updatedUser.getRoles() == null || updatedUser.getRoles().isEmpty()) {
+                Role userRole = roleRepository.findByName("USER")
+                        .orElseGet(() -> roleRepository.save(new Role("USER")));
+                user.setRoles(Set.of(userRole));
+            } else {
+                user.setRoles(updatedUser.getRoles());
+            }
+
+            return userRepository.save(user);
+        });
     }
 
     // Delete user

@@ -57,7 +57,7 @@ public class ProviderController {
     // Update provider
     @PutMapping("/{id}")
     public ResponseEntity<Provider> updateProvider(@PathVariable Long id, @RequestBody Provider updatedProvider) {
-        Optional<Provider> provider = providerService.updateProvider(id, updatedProvider, updatedProvider);
+        Optional<Provider> provider = providerService.updateProvider(id, updatedProvider);
         return provider.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 

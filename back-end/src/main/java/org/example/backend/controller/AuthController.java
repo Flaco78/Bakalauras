@@ -1,28 +1,34 @@
 package org.example.backend.controller;
 
+import org.example.backend.model.RoleRepository;
 import org.example.backend.model.User;
 import org.example.backend.security.JwtUtil;
 import org.example.backend.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.example.backend.model.Role;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     private final JwtUtil jwtUtil;
 
     private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserRepository userRepository,
+    public AuthController(UserRepository userRepository, RoleRepository roleRepository,
                           JwtUtil jwtUtil,
                           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
     }
@@ -33,7 +39,12 @@ public class AuthController {
         if (userRepository.existsByEmail(user.getEmail())) {
             return ResponseEntity.badRequest().body("User already exists");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));  // Šifruok slaptažodį
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new RuntimeException("Default role USER not found"));
+        user.setRoles(Set.of(userRole));
+
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully");
     }
@@ -51,7 +62,11 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Invalid password");
         }
 
-        String token = jwtUtil.generateToken(email);
+        List<String> roleNames = user.getRoles().stream()
+                .map(Role::getName)
+                .toList();
+
+        String token = jwtUtil.generateToken(email, roleNames);
         return ResponseEntity.ok(Map.of("token", token));
     }
 }

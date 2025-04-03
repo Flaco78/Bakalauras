@@ -1,9 +1,7 @@
 package org.example.backend.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.backend.model.Provider;
-import org.example.backend.model.ProviderRequest;
-import org.example.backend.model.ProviderStatus;
+import org.example.backend.model.*;
 import org.example.backend.repository.ProviderRepository;
 import org.example.backend.repository.ProviderRequestRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,12 +9,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class ProviderService {
     private final ProviderRepository providerRepository;
     private final ProviderRequestRepository providerRequestRepository;
+    private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
@@ -55,6 +55,13 @@ public class ProviderService {
             throw new IllegalArgumentException("Password cannot be empty");
         }
 
+        if (provider.getRoles() == null || provider.getRoles().isEmpty()) {
+            Role userRole = roleRepository.findByName("USER")
+                    .orElseGet(() -> roleRepository.save(new Role("USER")));
+            provider.setRoles(Set.of(userRole));
+        }
+
+
         providerRepository.save(provider);
         providerRequest.setStatus(ProviderStatus.APPROVED);
         providerRequestRepository.save(providerRequest);
@@ -73,26 +80,41 @@ public class ProviderService {
             throw new IllegalArgumentException("Password cannot be empty");
         }
 
+        if (provider.getRoles() == null || provider.getRoles().isEmpty()) {
+            Role userRole = roleRepository.findByName("USER")
+                    .orElseGet(() -> roleRepository.save(new Role("USER")));
+            provider.setRoles(Set.of(userRole));
+        }
+
         return providerRepository.save(provider);
     }
 
-    public Optional<Provider> updateProvider(Long id, Provider provider, Provider updatedProvider) {
-        if (providerRepository.existsById(id)) {
-            provider.setId(id);
+    public Optional<Provider> updateProvider(Long id, Provider updatedProvider) {
+        return providerRepository.findById(id).map(provider -> {
             provider.setEmail(updatedProvider.getEmail());
             provider.setName(updatedProvider.getName());
             provider.setWebsite(updatedProvider.getWebsite());
             provider.setProviderType(updatedProvider.getProviderType());
             provider.setPhone(updatedProvider.getPhone());
+
             if (updatedProvider.getPassword() != null && !updatedProvider.getPassword().isEmpty()) {
                 String encryptedPassword = bCryptPasswordEncoder.encode(updatedProvider.getPassword());
                 provider.setPassword(encryptedPassword);
             }
+            if (updatedProvider.getRoles() == null || updatedProvider.getRoles().isEmpty()) {
+                Role userRole = roleRepository.findByName("USER")
+                        .orElseGet(() -> roleRepository.save(new Role("USER")));
+                provider.setRoles(Set.of(userRole));
+            } else {
+                provider.setRoles(updatedProvider.getRoles());
+            }
 
-            return Optional.of(providerRepository.save(provider));
-        }
-        return Optional.empty();
+            return providerRepository.save(provider);
+        });
     }
+
+
+
 
     public boolean deleteProvider(Long id) {
         if (providerRepository.existsById(id)) {

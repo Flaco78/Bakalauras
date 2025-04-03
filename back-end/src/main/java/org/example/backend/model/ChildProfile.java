@@ -1,7 +1,6 @@
 package org.example.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -28,14 +27,14 @@ public class ChildProfile {
     @NotNull(message = "Birth date is required!")
     @Past(message = "Birth date must be in the past!")
     private LocalDate birthDate;
-    @AssertTrue(message = "Child must be between 6 and 18 years old!")
+    @AssertTrue(message = "Child must be between 6 and 10 years old!")
     private boolean isValidAge() {
         if (birthDate == null) {
             return false;
         }
         LocalDate now = LocalDate.now();
         int age = now.getYear() - birthDate.getYear();
-        return age >= 6 && age <= 10;
+        return age >= 6 && age <= 11;
     }
 
     @Column(nullable = false)

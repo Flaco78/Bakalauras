@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,7 +14,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -36,17 +39,21 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         if (jwtUtil.validateToken(token)) {
             String email = jwtUtil.extractEmail(token);
-            System.out.println("Authenticated user: " + email);
-        }
+            List<String> roles = jwtUtil.extractRoles(token); // Iš JWT gauname roles
 
-        if (jwtUtil.validateToken(token)) {
-            System.out.println("Valid token: " + token);
-            String email = jwtUtil.extractEmail(token);
+            log.info("Authenticated user: {} with roles: {}", email, roles);
+
+            List<SimpleGrantedAuthority> authorities = (roles != null)
+                    ? roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toList())
+                    : List.of();
+
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(email, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                    new UsernamePasswordAuthenticationToken(email, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            log.info("Valid token: {}", token);
         } else {
-            System.out.println("Invalid token");
+            log.info("Invalid token");
         }
 
         filterChain.doFilter(request, response);

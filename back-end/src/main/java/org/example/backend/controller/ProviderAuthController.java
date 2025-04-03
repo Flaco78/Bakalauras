@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.example.backend.model.Role;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -32,8 +34,11 @@ public class ProviderAuthController {
             return ResponseEntity.badRequest().body("Invalid password");
         }
 
+        List<String> roles = provider.getRoles().stream()
+                .map(Role::getName)
+                .toList();
 
-        String token = jwtUtil.generateToken(provider.getEmail());
+        String token = jwtUtil.generateToken(provider.getEmail(), roles);
         return ResponseEntity.ok(Map.of("token", token));
     }
 }

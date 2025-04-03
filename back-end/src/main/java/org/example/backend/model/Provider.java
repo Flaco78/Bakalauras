@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -38,6 +39,14 @@ public class Provider {
 
     @Enumerated(EnumType.STRING)
     private ProviderType providerType;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "provider_roles",
+            joinColumns = @JoinColumn(name = "provider_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @NotEmpty(message = "At least one role is required")
+    private Set<Role> roles;
 
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

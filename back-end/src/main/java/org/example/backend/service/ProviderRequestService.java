@@ -45,7 +45,6 @@ public class ProviderRequestService {
     public Optional<ProviderRequest> updateProviderRequest(Long requestId, ProviderRequest providerRequest, ProviderRequest updatedProviderRequest) {
         if (providerRequestRepository.existsById(requestId)) {
             providerRequest.setId(requestId);
-            providerRequest.setAddress(updatedProviderRequest.getAddress());
             providerRequest.setEmail(updatedProviderRequest.getEmail());
             providerRequest.setStatus(updatedProviderRequest.getStatus());
             providerRequest.setPhone(updatedProviderRequest.getPhone());

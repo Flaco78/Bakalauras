@@ -49,7 +49,7 @@ public class UserController {
     // Update user
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        Optional<User> user = userService.updateUser(id, updatedUser, updatedUser);
+        Optional<User> user = userService.updateUser(id, updatedUser);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
