@@ -37,6 +37,10 @@ public class Provider {
             message = "Invalid website URL")
     private String website;
 
+    @NotBlank(message = "Description cannot be empty")
+    @Column(nullable = false)
+    private String description;
+
     @Enumerated(EnumType.STRING)
     private ProviderType providerType;
 

@@ -56,6 +56,7 @@ public class UserService {
     public Optional<User> updateUser(Long userId, User updatedUser) {
         return userRepository.findById(userId).map(user -> {
             user.setEmail(updatedUser.getEmail());
+            user.setAddress(updatedUser.getAddress());
 
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
                 String encryptedPassword = bCryptPasswordEncoder.encode(updatedUser.getPassword());

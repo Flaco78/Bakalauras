@@ -29,6 +29,10 @@ public class ProviderRequest {
     @Email(message = "Invalid email format")
     private String email;
 
+    @NotBlank(message = "Description cannot be empty")
+    @Column(nullable = false)
+    private String description;
+
     @NotNull(message = "Phone number cannot be null")
     @Pattern(regexp = "\\+?[0-9]{7,15}", message = "Invalid phone number format")
     private String phone;

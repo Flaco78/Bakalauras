@@ -1,35 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
+import {AuthProvider, useAuth} from "./context/AuthContext.jsx";
+import axios from "axios";
+import LoginPage from "./pages/LoginPage.jsx";
+import MainPage from "./pages/MainPage.jsx";
+import RegistrationPage from "./pages/RegistrationPage.jsx";
+import routeConfig from "./config/routeConfig.jsx";
+import Navbar from "./components/Navbar.jsx";
+import LandingPage from "./pages/LandingPage.jsx";
+import ProviderRegistrationPage from "./pages/ProviderRegistrationPage.jsx";
+import UserProfile from "./pages/UserProfile.jsx";
+
+axios.defaults.baseURL = 'http://localhost:8080';
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+    <Router>
+        <AuthProvider>
+                <Navbar />
+                <Routes>
+                    {routeConfig.map(({ path, component, roles }) => (
+                        <Route
+                            key={path}
+                            path={path}
+                            element={<ProtectedRoute component={component} roles={roles} />}
+                        />
+                    ))}
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/main" element={<ProtectedRoute component={MainPage} />} />
+                    <Route path="/register" element={<RegistrationPage />} />
+                    <Route path="/register-provider" element={<ProviderRegistrationPage />} />
+                    <Route path="/user-profile" element={<UserProfile />} />
+                </Routes>
+        </AuthProvider>
+    </Router>
+    );
 }
 
-export default App
+function ProtectedRoute({ component: Component, roles: allowedRoles }) {
+    const { isAuthenticated, roles, loading } = useAuth();
+
+    if (loading) {
+        return <div>Kraunama...</div>;
+    }
+
+    const hasAccess = !allowedRoles || allowedRoles.some(role => roles.includes(role));
+
+    if (!isAuthenticated) {
+        return <Navigate to="/" replace />;
+    }
+
+    return hasAccess ? <Component /> : <Navigate to="/unauthorized" replace />;
+}
+
+export default App;

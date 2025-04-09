@@ -1,6 +1,7 @@
 package org.example.backend.controller;
 
 import org.example.backend.model.Activity;
+import org.example.backend.model.ActivityCategory;
 import org.example.backend.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -69,5 +70,18 @@ public class ActivityController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // Gauti visas veiklų kategorijas
+    @GetMapping("/categories")
+    public ResponseEntity<ActivityCategory[]> getAllCategories() {
+        return ResponseEntity.ok(ActivityCategory.values());
+    }
+
+    // Gauti veiklas pagal kategoriją
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<Activity>> getActivitiesByCategory(@PathVariable String category) {
+        List<Activity> activities = activityService.getActivitiesByCategory(category.toUpperCase());
+        return ResponseEntity.ok(activities);
     }
 }

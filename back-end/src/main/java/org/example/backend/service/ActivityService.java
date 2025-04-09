@@ -1,6 +1,7 @@
 package org.example.backend.service;
 
 import org.example.backend.model.Activity;
+import org.example.backend.model.ActivityCategory;
 import org.example.backend.model.Provider;
 import org.example.backend.repository.ActivityRepository;
 import org.example.backend.repository.ProviderRepository;
@@ -61,5 +62,10 @@ public class ActivityService {
             return true;
         }
         return false;
+    }
+
+    public List<Activity> getActivitiesByCategory(String category) {
+        ActivityCategory categoryEnum = ActivityCategory.valueOf(category.toUpperCase());
+        return activityRepository.findByCategory(categoryEnum);
     }
 }

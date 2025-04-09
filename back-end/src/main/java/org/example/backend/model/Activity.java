@@ -9,6 +9,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -53,4 +56,7 @@ public class Activity {
     @JoinColumn(name = "provider_id", nullable = false)
     @NotNull(message = "Provider cannot be null")
     private Provider provider;
+
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 }
