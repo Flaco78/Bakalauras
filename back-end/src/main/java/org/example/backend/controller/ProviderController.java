@@ -1,5 +1,7 @@
 package org.example.backend.controller;
 
+import org.example.backend.dto.ProviderDTO;
+import org.example.backend.mapper.ProviderMapper;
 import org.example.backend.model.Provider;
 import org.example.backend.service.ProviderService;
 import org.springframework.http.HttpStatus;
@@ -7,7 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/provider")
@@ -29,18 +32,33 @@ public class ProviderController {
         }
     }
 
+    @PatchMapping("/decline/{requestId}")
+    public ResponseEntity<Void> declineProvider(
+            @PathVariable Long requestId,
+            @RequestBody Map<String, String> body
+    ) {
+        String reason = body.get("reason");
+        providerService.declineProviderRequest(requestId, reason);
+        return ResponseEntity.ok().build();
+    }
+
     // Get all providers
     @GetMapping("/all")
-    public ResponseEntity<List<Provider>> getAllProviders() {
-        List<Provider> providers = providerService.getAllProviders();
-        return ResponseEntity.ok(providers);
+    public ResponseEntity<List<ProviderDTO>> getAllProviders() {
+        return ResponseEntity.ok(
+                providerService.getAllProviders().stream()
+                        .map(ProviderMapper::toDto)
+                        .collect(Collectors.toList())
+        );
     }
 
     // Get provider by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Provider> getProviderById(@PathVariable Long id) {
-        Optional<Provider> provider = providerService.getProviderById(id);
-        return provider.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ProviderDTO> getProviderById(@PathVariable Long id) {
+        return providerService.getProviderById(id)
+                .map(ProviderMapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Create new provider
@@ -56,9 +74,12 @@ public class ProviderController {
 
     // Update provider
     @PutMapping("/{id}")
-    public ResponseEntity<Provider> updateProvider(@PathVariable Long id, @RequestBody Provider updatedProvider) {
-        Optional<Provider> provider = providerService.updateProvider(id, updatedProvider);
-        return provider.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ProviderDTO> updateProvider(@PathVariable Long id, @RequestBody ProviderDTO providerDTO) {
+        var updatedProvider = providerService.updateProvider(id, ProviderMapper.toEntity(providerDTO));
+        return updatedProvider
+                .map(ProviderMapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Delete provider

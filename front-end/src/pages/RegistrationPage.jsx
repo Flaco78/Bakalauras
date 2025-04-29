@@ -9,7 +9,10 @@ const RegistrationPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [address, setAddress] = useState('');
     const navigate = useNavigate();
+    const [errors, setErrors] = useState({});
+
 
     const handleSignup = async (e) => {
         e.preventDefault();
@@ -22,7 +25,8 @@ const RegistrationPage = () => {
         try {
             const response = await axios.post('/api/auth/register', {
                 email,
-                password
+                password,
+                address,
             });
 
             if (response.status === 200) {
@@ -31,16 +35,23 @@ const RegistrationPage = () => {
                 alert(`Registration failed: ${response.data.message || 'Unknown error'}`);
             }
         } catch (error) {
-            console.error("There was an error registering:", error);
-            alert("Registration failed. Please try again.");
-        }
+            if (
+                error.response &&
+                error.response.status === 400 &&
+                typeof error.response.data === 'object'
+            ) {
+                setErrors(error.response.data);
+            } else {
+                setErrors({ general: 'Įvyko nenumatyta klaida. Bandykite dar kartą.' });
+            }
+    }
     };
 
     return (
         <Container component="main" maxWidth="xs">
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 5 }}>
                 <Typography variant="h3" sx={{ fontFamily: '"Comic Sans MS", cursive, sans-serif', fontWeight: 'bold', color: 'rgba(0,0,0,0.87)' }}>
-                    SIGNUP
+                    REGISTRACIJA
                 </Typography>
                 <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
                     <img
@@ -49,32 +60,64 @@ const RegistrationPage = () => {
                         style={{ width: '70%' }}
                     />
                 </Box>
+                {Object.keys(errors).length > 0 && (
+                    <Box sx={{ backgroundColor: '#ffe0e0', padding: 2, borderRadius: 2, mb: 2 }}>
+                        {errors.general && (
+                            <Typography sx={{ color: 'red', fontWeight: 500 }}>
+                                {errors.general}
+                            </Typography>
+                        )}
+                        {Object.entries(errors).map(([field, message]) => {
+                            if (field === 'general') return null;
+                            return (
+                                <Typography key={field} sx={{ color: 'red', fontSize: '14px' }}>
+                                    {message}
+                                </Typography>
+                            );
+                        })}
+                    </Box>
+                )}
                 <form onSubmit={handleSignup} style={{width: '100%'}}>
-                    <Typography variant="h5" sx={{textAlign: 'left', mb: 1}}>Email</Typography>
+                    <Typography variant="h5" sx={{textAlign: 'left', mb: 1}}>El. paštas</Typography>
                     <TextFieldFunky
-                        required
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            setErrors({});
+                        }}
                         fullWidth
                     />
-                    <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Password</Typography>
+                    <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Slaptažodis</Typography>
                     <TextFieldFunky
-                        required
                         type="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            setErrors({});
+                        }}
                         fullWidth
                     />
-                    <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Confirm Password</Typography>
+                    <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Pakartokite slaptažodį</Typography>
                     <TextFieldFunky
-                        required
                         type="password"
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onChange={(e) => {
+                            setConfirmPassword(e.target.value);
+                            setErrors({});
+                        }}
                         fullWidth
                     />
-                    <ButtonFunky fullWidth sx={{mt: 2}}>
-                        Sign Up
+                    <Typography variant="h5" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Adresas</Typography>
+                    <TextFieldFunky
+                        value={address}
+                        onChange={(e) => {
+                            setAddress(e.target.value);
+                            setErrors({});
+                        }}
+                        fullWidth
+                    />
+                    <ButtonFunky type="submit" fullWidth sx={{mt: 2}}>
+                        Prisijungti
                     </ButtonFunky>
                 </form>
             </Box>

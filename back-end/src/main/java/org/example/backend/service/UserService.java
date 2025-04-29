@@ -2,12 +2,13 @@ package org.example.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.model.Role;
-import org.example.backend.model.RoleRepository;
+import org.example.backend.repository.RoleRepository;
 import org.example.backend.model.User;
 import org.example.backend.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,8 +46,18 @@ public class UserService {
 
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
             Role userRole = roleRepository.findByName("USER")
-                    .orElseGet(() -> roleRepository.save(new Role("USER")));
+                    .orElseGet(() -> {
+                        Role newRole = new Role("USER");
+                        return roleRepository.save(newRole);
+                    });
             user.setRoles(Set.of(userRole));
+        } else {
+            Set<Role> validRoles = new HashSet<>();
+            for (Role role : user.getRoles()) {
+                Optional<Role> existingRole = roleRepository.findById(role.getId());
+                existingRole.ifPresent(validRoles::add);
+            }
+            user.setRoles(validRoles);
         }
 
         return userRepository.save(user);
@@ -58,6 +69,7 @@ public class UserService {
             user.setEmail(updatedUser.getEmail());
             user.setAddress(updatedUser.getAddress());
 
+            // Password handling: only update if provided
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
                 String encryptedPassword = bCryptPasswordEncoder.encode(updatedUser.getPassword());
                 user.setPassword(encryptedPassword);
@@ -65,13 +77,22 @@ public class UserService {
 
             if (updatedUser.getRoles() == null || updatedUser.getRoles().isEmpty()) {
                 Role userRole = roleRepository.findByName("USER")
-                        .orElseGet(() -> roleRepository.save(new Role("USER")));
-                user.setRoles(Set.of(userRole));
+                        .orElseGet(() -> {
+                            Role newRole = new Role("USER");
+                            return roleRepository.save(newRole); // Save new role if not found
+                        });
+                user.setRoles(Set.of(userRole));  // Assign default role if none is provided
             } else {
-                user.setRoles(updatedUser.getRoles());
+                // Validate roles by ID before updating
+                Set<Role> validRoles = new HashSet<>();
+                for (Role role : updatedUser.getRoles()) {
+                    Optional<Role> existingRole = roleRepository.findById(role.getId());
+                    existingRole.ifPresent(validRoles::add);
+                }
+                user.setRoles(validRoles);  // Update the user's roles with validated ones
             }
 
-            return userRepository.save(user);
+            return userRepository.save(user);  // Save the updated user
         });
     }
 

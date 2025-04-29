@@ -1,5 +1,6 @@
 const toolbarConfig = [
-    { path: "/users", label: "Users", roles: ["ADMIN"] }
+    { path: "/admin", label: "Admin Panel", roles: ["ADMIN"] },
+    { path: "/provider", label: "Mano veiklos", roles: ["PROVIDER"] },
 ];
 
 export default toolbarConfig;

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,16 +23,17 @@ public class User {
 
 
     @Column(nullable = false, unique = true)
-    @NotBlank(message = "Email is required!")
-    @Email(message = "Email should be valid")
+    @NotBlank(message = "El. paštas yra reikalingas!")
+    @Email(message = "El. paštas turi būti teisingo formato")
     private String email;
 
 
     @Column(nullable = false)
-    @NotBlank(message = "Password is required!")
-    @Size(min = 8, message = "Password must be at least 8 characters long")
+    @NotBlank(message = "Slaptažodis yra reikalingas!")
+    @Size(min = 8, message = "Slaptažodis turi būti bent 8 simbolių")
     private String password;
 
+    @NotBlank(message = "Adresas yra reikalingas!")
     @Column(nullable = false)
     private String address;
 
@@ -42,7 +42,6 @@ public class User {
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    @NotEmpty(message = "At least one role is required")
     private Set<Role> roles;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)

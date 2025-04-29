@@ -16,9 +16,9 @@ const LandingPage = () => {
             />
             </Box>
             <Typography variant="h3" sx={{fontFamily: '"Comic Sans MS", cursive', fontWeight: 'bold'}}>
-                Welcome to Popamokslis!
+                👋 Sveiki atvykę į <span style={{ color: '#ff6f00' }}>Popamokslį!</span>
             </Typography>
-            <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', mb: 2}}>
+            <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', mb: 5}}>
                 <img
                     src="/Underline_01.png"
                     alt="underline"
@@ -27,13 +27,13 @@ const LandingPage = () => {
             </Box>
             <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
                 <ButtonFunky onClick={() => navigate('/register')}>
-                    Join as Parent
+                    Prisijungti kaip tėvas / mama
                 </ButtonFunky>
                 <ButtonFunky onClick={() => navigate('/register-provider')}>
-                    Join as Provider
+                    Užsiregistruoti kaip veiklos teikėjas
                 </ButtonFunky>
                 <ButtonFunky onClick={() => navigate('/login')}>
-                    Already have an account? Log in
+                    Jau turite paskyrą? Prisijunkite
                 </ButtonFunky>
             </Box>
         </Container>

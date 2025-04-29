@@ -12,13 +12,20 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mui/icons-material": "^7.0.1",
-    "@mui/material": "^7.0.1",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
     "@mui/system": "^7.0.1",
+    "@react-google-maps/api": "^2.20.6",
     "axios": "^1.8.4",
+    "jwt-decode": "^4.0.0",
+    "leaflet": "^1.9.4",
+    "nominatim-client": "^3.2.1",
+    "ol": "^10.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.4.1",
+    "react-toastify": "^11.0.5",
     "styled-components": "^6.1.17"
   },
   "devDependencies": {

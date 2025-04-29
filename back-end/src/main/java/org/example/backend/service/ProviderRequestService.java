@@ -2,6 +2,7 @@ package org.example.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.model.ProviderRequest;
+import org.example.backend.enums.ProviderStatus;
 import org.example.backend.repository.ProviderRequestRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,11 @@ public class ProviderRequestService {
     // Get provider request by ID
     public Optional<ProviderRequest> getProviderRequestById(Long providerRequestId) {
         return providerRequestRepository.findById(providerRequestId);
+    }
+
+    // ProviderRequestService.java
+    public List<ProviderRequest> getRequestsByStatus(ProviderStatus status) {
+        return providerRequestRepository.findAllByStatus(status);
     }
 
     // Create new provider request

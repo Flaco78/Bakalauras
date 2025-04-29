@@ -6,40 +6,49 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.backend.enums.ProviderStatus;
+import org.example.backend.enums.ProviderType;
+import org.example.backend.validation.CompanyFieldsRequired;
+import org.example.backend.validation.IndividualNameRequired;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@CompanyFieldsRequired
+@IndividualNameRequired
 public class ProviderRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Name is required")
-    @Size(min = 2, message = "Name must be at least 2 characters long")
     private String name;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters long")
-    private String password;
-
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "El. pašto laukelis yra reikalingas")
+    @Email(message = "Neteisingas el. pašto formatas")
     private String email;
 
-    @NotBlank(message = "Description cannot be empty")
+    @NotBlank(message = "Slaptažodis yra reikalingas")
+    @Size(min = 6, message = "Slaptažodis turi būti bent šešių skaitmenų")
+    private String password;
+
+
+    @NotBlank(message = "Aprašymas negali būti tuščias")
     @Column(nullable = false)
     private String description;
 
-    @NotNull(message = "Phone number cannot be null")
-    @Pattern(regexp = "\\+?[0-9]{7,15}", message = "Invalid phone number format")
+    @NotNull(message = "Telefonas yra reikalingas")
+    @Pattern(regexp = "\\+?[0-9]{7,15}", message = "Neteisingas telefono numerio formatas")
     private String phone;
 
+
     @Pattern(regexp = "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-zA-Z0-9]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)$",
-            message = "Invalid website URL")
+            message = "Neteisingas tinklapio adresas")
     private String website;
+
+    private String companyName;
+    private String companyCode;
 
 
     @Enumerated(EnumType.STRING)

@@ -50,6 +50,9 @@ public class ChildProfileService {
             existingProfile.setName(updatedProfile.getName());
             existingProfile.setBirthDate(updatedProfile.getBirthDate());
             existingProfile.setGender(updatedProfile.getGender());
+            existingProfile.setMaxActivityDuration(updatedProfile.getMaxActivityDuration());
+            existingProfile.setPreferredDeliveryMethod(updatedProfile.getPreferredDeliveryMethod());
+            existingProfile.setInterests(updatedProfile.getInterests());
             return childProfileRepository.save(existingProfile);
         });
     }

@@ -10,6 +10,11 @@ import Navbar from "./components/Navbar.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import ProviderRegistrationPage from "./pages/ProviderRegistrationPage.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
+import ActivityCardDetails from "./pages/ActivityCardDetails.jsx";
+import {ToastContainer} from "react-toastify";
+import SearchPage from "./pages/SearchPage.jsx";
+import {ChildProvider} from "./context/ChildContext.jsx";
+import FavoriteActivities from "./pages/FavoriteActivities.jsx";
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -17,22 +22,28 @@ function App() {
     return (
     <Router>
         <AuthProvider>
-                <Navbar />
-                <Routes>
-                    {routeConfig.map(({ path, component, roles }) => (
-                        <Route
-                            key={path}
-                            path={path}
-                            element={<ProtectedRoute component={component} roles={roles} />}
-                        />
-                    ))}
-                    <Route path="/" element={<LandingPage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/main" element={<ProtectedRoute component={MainPage} />} />
-                    <Route path="/register" element={<RegistrationPage />} />
-                    <Route path="/register-provider" element={<ProviderRegistrationPage />} />
-                    <Route path="/user-profile" element={<UserProfile />} />
-                </Routes>
+            <ChildProvider>
+                <ToastContainer position="top-center" autoClose={3000} />
+                 <Navbar />
+                    <Routes>
+                        {routeConfig.map(({ path, component, roles }) => (
+                            <Route
+                                key={path}
+                                path={path}
+                                element={<ProtectedRoute component={component} roles={roles} />}
+                            />
+                        ))}
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/main" element={<ProtectedRoute component={MainPage} />} />
+                        <Route path="/search" element={<SearchPage />} />
+                        <Route path="/register" element={<RegistrationPage />} />
+                        <Route path="/favorites" element={<FavoriteActivities />} />
+                        <Route path="/register-provider" element={<ProviderRegistrationPage />} />
+                        <Route path="/user-profile" element={<ProtectedRoute component={UserProfile} />} />
+                        <Route path="/activities/:id" element={<ActivityCardDetails />} />
+                    </Routes>
+            </ChildProvider>
         </AuthProvider>
     </Router>
     );

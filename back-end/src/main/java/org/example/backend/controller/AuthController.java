@@ -1,7 +1,9 @@
 package org.example.backend.controller;
 
+import jakarta.validation.Valid;
+import org.example.backend.dto.ChildProfileDTO;
 import org.example.backend.model.ChildProfile;
-import org.example.backend.model.RoleRepository;
+import org.example.backend.repository.RoleRepository;
 import org.example.backend.model.User;
 import org.example.backend.response.UserResponse;
 import org.example.backend.security.JwtUtil;
@@ -12,12 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.example.backend.model.Role;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,18 +43,34 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@Valid @RequestBody User user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error ->
+                    errors.put(error.getField(), error.getDefaultMessage())
+            );
+            return ResponseEntity.badRequest().body(errors);
+        }
+
         if (userRepository.existsByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().body("User already exists");
+            return ResponseEntity.badRequest().body(Map.of("email", "Šis el. paštas jau naudojamas"));
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Role userRole = roleRepository.findByName("USER")
-                .orElseThrow(() -> new RuntimeException("Default role USER not found"));
-        user.setRoles(Set.of(userRole));
+
+//        Role userRole = roleRepository.findByName("USER")
+//                        .orElseThrow(() -> new RuntimeException("Tokia rolė neegzistuoja"));
+//        user.setRoles(Set.of(userRole));
+
+        Optional<Role> userRoleOpt = roleRepository.findByName("USER");
+        if (userRoleOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Tokia rolė neegzistuoja"));
+        }
+        user.setRoles(Set.of(userRoleOpt.get()));
 
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok("Vartotojo registracija sėkminga");
     }
 
     // Prisijungimas ir JWT gavimas
@@ -62,11 +79,14 @@ public class AuthController {
         String email = credentials.get("email");
         String password = credentials.get("password");
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vartotojas nerastas");
+        }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            return ResponseEntity.badRequest().body("Invalid password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Neteisingas slaptažodis");
         }
 
         List<String> roleNames = user.getRoles().stream()
@@ -145,7 +165,7 @@ public class AuthController {
 
 
     @GetMapping("/user/child-profiles")
-    public ResponseEntity<List<ChildProfile>> getChildProfilesByAuthenticatedUser(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<List<ChildProfileDTO>> getChildProfilesByAuthenticatedUser(@RequestHeader("Authorization") String authorizationHeader) {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
@@ -160,6 +180,9 @@ public class AuthController {
                 new UsernameNotFoundException(String.format("User %s not found", email)));
 
         List<ChildProfile> childProfiles = childProfileService.getChildProfilesByParentId(user.getId());
-        return ResponseEntity.ok(childProfiles);
+        List<ChildProfileDTO> dtos = childProfiles.stream()
+                .map(org.example.backend.mapper.ChildProfileMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(dtos);
     }
 }

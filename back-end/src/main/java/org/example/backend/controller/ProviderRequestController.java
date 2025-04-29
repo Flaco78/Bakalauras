@@ -2,7 +2,7 @@ package org.example.backend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.model.ProviderRequest;
-import org.example.backend.model.ProviderStatus;
+import org.example.backend.enums.ProviderStatus;
 import org.example.backend.repository.ProviderRequestRepository;
 import org.example.backend.service.ProviderRequestService;
 import org.springframework.http.HttpStatus;
@@ -42,6 +42,20 @@ public class ProviderRequestController {
     @GetMapping("/all")
     public ResponseEntity<List<ProviderRequest>> getAllProvider() {
         List<ProviderRequest> providerRequests = providerRequestService.getAllProviderRequests();
+        return ResponseEntity.ok(providerRequests);
+    }
+
+    // ProviderRequestController.java
+    @GetMapping
+    public ResponseEntity<List<ProviderRequest>> getProviderRequestsByStatus(@RequestParam(required = false) ProviderStatus status) {
+        List<ProviderRequest> providerRequests;
+
+        if (status != null) {
+            providerRequests = providerRequestService.getRequestsByStatus(status);
+        } else {
+            providerRequests = providerRequestService.getAllProviderRequests();
+        }
+
         return ResponseEntity.ok(providerRequests);
     }
 

@@ -32,6 +32,26 @@ export const AuthProvider = ({ children }) => {
             navigate('/login');
         }
     }, [navigate]);
+    const fetchProviderDetails = useCallback(async (token) => {
+        try {
+            const response = await axios.get("/api/auth/provider", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setUser(response.data);
+            setRoles(response.data.roles || [{ name: 'PROVIDER' }]); // jei nėra roles lauke
+            localStorage.setItem('user', JSON.stringify(response.data));
+        } catch (error) {
+            console.error("Error fetching provider details:", error);
+            localStorage.removeItem('token');
+            setToken(null);
+            setIsAuthenticated(false);
+            setUser(null);
+            setRoles([]);
+            navigate('/login');
+        }
+    }, [navigate]);
 
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
@@ -48,11 +68,17 @@ export const AuthProvider = ({ children }) => {
                     setUser(parsedUser);
                     setRoles(parsedUser.roles);
                 } else {
-                    await fetchUserDetails(storedToken);
+                    const loginType = localStorage.getItem('loginType') || 'USER';
+                    if (loginType === 'PROVIDER') {
+                        await fetchProviderDetails(storedToken);
+                    } else {
+                        await fetchUserDetails(storedToken);
+                    }
                 }
             }
             setLoading(false);
         };
+
 
         initializeAuthentication().catch((error) => {
             console.error("Error during authentication initialization:", error);
@@ -60,16 +86,27 @@ export const AuthProvider = ({ children }) => {
         })
     }, [fetchUserDetails]);
 
-    const login = (newToken) => {
+
+    const login = (newToken, loginType = 'USER') => {
         localStorage.setItem('token', newToken);
+        localStorage.setItem('loginType', loginType);
         setToken(newToken);
         setIsAuthenticated(true);
+
+        if (loginType === 'PROVIDER') {
+            fetchProviderDetails(newToken);
+        } else {
+            fetchUserDetails(newToken);
+        }
+
         navigate('/main');
     };
 
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('selectedChildId');
+        localStorage.removeItem('loginType');
         setToken(null);
         setIsAuthenticated(false);
         setUser(null);

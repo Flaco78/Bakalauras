@@ -7,7 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.backend.enums.ActivityCategory;
+import org.example.backend.enums.DeliveryMethod;
+import org.example.backend.enums.Gender;
+
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -41,8 +47,28 @@ public class ChildProfile {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @Column(nullable = false)
+    private int maxActivityDuration;  // Laiko limitas minutėmis
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DeliveryMethod preferredDeliveryMethod;  // ONLINE arba ONSITE
+
     @ManyToOne
     @JoinColumn(name = "parent_id", nullable = false)
     @JsonBackReference
     private User parent;
+
+    @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonBackReference
+    private Set<ActivityInteraction> activityInteractions = new HashSet<>();
+
+    @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Booking> bookings = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "child_interests", joinColumns = @JoinColumn(name = "child_id"))
+    @Column(name = "category")
+    @Enumerated(EnumType.STRING)
+    private Set<ActivityCategory> interests = new HashSet<>();
 }

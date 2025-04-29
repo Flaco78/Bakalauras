@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Container, Box, Typography, InputLabel, MenuItem, Select, FormControl} from '@mui/material';
+import {Container, Box, Typography,} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ButtonFunky from "../components/ButtonFunky.jsx";
@@ -16,7 +16,7 @@ const ProviderRegistrationPage = () => {
         website: '',
         providerType: ''
     });
-
+    const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -27,8 +27,26 @@ const ProviderRegistrationPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (form.password !== form.confirmPassword) {
-            alert("Passwords do not match");
+        const newErrors = {};
+
+        if (!form.email) newErrors.email = 'El. paštas yra privalomas';
+        if (!form.password) newErrors.password = 'Slaptažodis yra privalomas';
+        if (!form.confirmPassword) newErrors.confirmPassword = 'Pakartokite slaptažodį';
+        if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Slaptažodžiai nesutampa';
+        if (!form.description) newErrors.description = 'Aprašymas yra privalomas';
+        if (!form.providerType) newErrors.providerType = 'Pasirinkite teikėjo tipą';
+
+        if (form.providerType === 'COMPANY') {
+            if (!form.companyName) newErrors.companyName = 'Įmonės pavadinimas yra privalomas';
+            if (!form.companyCode) newErrors.companyCode = 'Mokesčių mokėtojo kodas yra privalomas';
+        }
+
+        if (form.providerType === 'INDIVIDUAL') {
+            if (!form.name) newErrors.name = 'Vardas yra privalomas';
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
 
@@ -40,15 +58,20 @@ const ProviderRegistrationPage = () => {
                     'Content-Type': 'application/json'
                 }
             });
+
             if (response.status === 200 || response.status === 201) {
-                alert("Request submitted successfully!");
+                setErrors({});
+                alert("Registracija sėkminga!");
                 navigate('/login');
             } else {
-                alert("Submission failed.");
+                setErrors({ general: "Nepavyko pateikti užklausos." });
             }
         } catch (error) {
-            console.error("Submission error:", error);
-            alert("Something went wrong. Try again.");
+            if (error.response && error.response.status === 400 && typeof error.response.data === 'object') {
+                setErrors(error.response.data);
+            } else {
+                setErrors({ general: "Įvyko klaida. Bandykite dar kartą." });
+            }
         }
     };
 
@@ -56,54 +79,148 @@ const ProviderRegistrationPage = () => {
         <Container component="main" maxWidth="xs">
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 5 }}>
                 <Typography variant="h3" sx={{ fontFamily: '"Comic Sans MS", cursive', fontWeight: 'bold', color: 'rgba(0,0,0,0.87)' }}>
-                    PROVIDER SIGNUP
+                     PRISIJUNGIMAS
                 </Typography>
                 <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
                     <img src="/Underline_01.png" alt="underline" style={{ width: '70%' }} />
                 </Box>
+
+                {Object.values(errors).some(msg => msg) && (
+                    <Box sx={{ backgroundColor: '#ffe0e0', padding: 2, borderRadius: 2, mb: 2 }}>
+                        {errors.general && (
+                            <Typography sx={{ color: 'red', fontWeight: 500 }}>
+                                {errors.general}
+                            </Typography>
+                        )}
+                        {Object.entries(errors).map(([field, message]) => {
+                            if (field === 'general') return null;
+                            return (
+                                <Typography key={field} sx={{ color: 'red', fontSize: '14px' }}>
+                                    {message}
+                                </Typography>
+                            );
+                        })}
+                    </Box>
+                )}
+
                 <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1 }}>Name</Typography>
-                    <TextFieldFunky name="name" required fullWidth value={form.name} onChange={handleChange} />
+                    <Typography variant="h6" sx={{ textAlign: 'center', mb: 1, mt: 2 }}>Teikėjo tipas</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 3 }}>
+                        <ButtonFunky
+                            sx={{
+                                backgroundColor: form.providerType === 'INDIVIDUAL' ? '#81c784' : '#ef9a9a',
+                                border: '2px solid #422800',
+                                fontWeight: 'bold',
+                            }}
+                            onClick={() => {
+                                setForm(prev => ({
+                                    ...prev,
+                                    providerType: 'INDIVIDUAL',
+                                    name: '',
+                                    companyName: '',
+                                    companyCode: ''
+                                }));
+                                setErrors(prev => ({ ...prev, providerType: null }));
+                            }}
+                        >
+                            Fizinis asmuo
+                        </ButtonFunky>
+
+                        <ButtonFunky
+                            sx={{
+                                backgroundColor: form.providerType === 'COMPANY' ? '#81c784' : '#ef9a9a',
+                                border: '2px solid #422800',
+                                fontWeight: 'bold',
+                            }}
+                            onClick={() => {
+                                setForm(prev => ({
+                                    ...prev,
+                                    providerType: 'COMPANY',
+                                    name: '',
+                                    companyName: '',
+                                    companyCode: ''
+                                }));
+                                setErrors(prev => ({ ...prev, providerType: null }));
+                            }}
+                        >
+                            Įmonė
+                        </ButtonFunky>
+                    </Box>
+
+                    {form.providerType === 'INDIVIDUAL' && (
+                        <>
+                            <Typography variant="h6" sx={{ textAlign: 'left', mb: 1 }}>Vardas</Typography>
+                            <TextFieldFunky
+                                name="name"
+                                fullWidth
+                                value={form.name}
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    setErrors(prev => ({ ...prev, name: null }));
+                                }}
+                            />
+                        </>
+                    )}
 
                     <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Email</Typography>
-                    <TextFieldFunky name="email" required fullWidth value={form.email} onChange={handleChange} />
+                    <TextFieldFunky
+                        name="email"
+                        fullWidth
+                        value={form.email}
+                        onChange={handleChange}
+                    />
 
                     <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Password</Typography>
-                    <TextFieldFunky name="password" type="password" required fullWidth value={form.password} onChange={handleChange} />
+                    <TextFieldFunky
+                        name="password"
+                        type="password"
+                        fullWidth
+                        value={form.password}
+                        onChange={handleChange}
+                    />
 
                     <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Confirm Password</Typography>
-                    <TextFieldFunky name="confirmPassword" type="password" required fullWidth value={form.confirmPassword} onChange={handleChange} />
+                    <TextFieldFunky
+                        name="confirmPassword"
+                        type="password"
+                        fullWidth
+                        value={form.confirmPassword}
+                        onChange={handleChange}
+                    />
 
                     <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Phone</Typography>
-                    <TextFieldFunky name="phone" required fullWidth value={form.phone} onChange={handleChange} />
+                    <TextFieldFunky
+                        name="phone"
+                        fullWidth
+                        value={form.phone}
+                        onChange={handleChange}
+                    />
 
                     <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Website</Typography>
-                    <TextFieldFunky name="website" fullWidth value={form.website} onChange={handleChange} />
+                    <TextFieldFunky
+                        name="website"
+                        fullWidth
+                        value={form.website}
+                        onChange={handleChange}
+                    />
 
                     <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Description</Typography>
-                    <TextFieldFunky name="description" multiline rows={3} required fullWidth value={form.description} onChange={handleChange} />
-
-                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Provider Type</Typography>
-                    <FormControl fullWidth required>
-                        <InputLabel>Provider Type</InputLabel>
-                        <Select
-                            name="providerType"
-                            value={form.providerType}
-                            onChange={handleChange}
-                            label="Provider Type"
-                        >
-                            <MenuItem value="INDIVIDUAL">Individual</MenuItem>
-                            <MenuItem value="COMPANY">Company</MenuItem>
-                        </Select>
-                    </FormControl>
-
+                    <TextFieldFunky
+                        name="description"
+                        multiline
+                        rows={3}
+                        required
+                        fullWidth
+                        value={form.description}
+                        onChange={handleChange}
+                    />
                     {form.providerType === 'COMPANY' && (
                         <>
                             <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Company Name</Typography>
                             <TextFieldFunky name="companyName" fullWidth value={form.companyName} onChange={handleChange} />
 
-                            <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Tax ID</Typography>
-                            <TextFieldFunky name="taxId" fullWidth value={form.taxId} onChange={handleChange} />
+                            <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Įmonės kodas</Typography>
+                            <TextFieldFunky name="companyCode" fullWidth value={form.companyCode} onChange={handleChange} />
                         </>
                     )}
                     <ButtonFunky fullWidth sx={{ mt: 3 }} onClick={handleSubmit}>

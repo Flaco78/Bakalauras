@@ -1,8 +1,22 @@
 import React from 'react';
 import { Box, InputBase } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import {useNavigate} from "react-router-dom";
 
-const SearchBarFunky = ({ onChange, value, placeholder = "Search...", sx, ...props }) => {
+const SearchBarFunky = ({ onChange, value, placeholder = "Rašykite čia...", sx, ...props }) => {
+    const navigate = useNavigate();
+
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (value.trim()) {
+                navigate(`/search?query=${encodeURIComponent(value.trim())}`);
+            } else {
+                navigate('/search');
+            }
+        }
+    };
+
     return (
         <Box
             sx={{
@@ -15,6 +29,13 @@ const SearchBarFunky = ({ onChange, value, placeholder = "Search...", sx, ...pro
                 padding: '0 12px',
                 width: '100%',
                 height: '50px',
+                '&:hover': {
+                    backgroundColor: '#fff',
+                },
+                '&:active': {
+                    boxShadow: '2px 2px 0 0 #422800',
+                    transform: 'translate(2px, 2px)',
+                },
                 ...sx,
             }}
         >
@@ -22,6 +43,7 @@ const SearchBarFunky = ({ onChange, value, placeholder = "Search...", sx, ...pro
             <InputBase
                 onChange={onChange}
                 value={value}
+                onKeyDown={handleKeyPress}
                 placeholder={placeholder}
                 inputProps={{ 'aria-label': 'search' }}
                 sx={{

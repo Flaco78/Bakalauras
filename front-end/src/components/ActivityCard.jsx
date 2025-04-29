@@ -2,22 +2,25 @@ import React from 'react';
 import {CardContent, Typography, CardMedia, Box, CardActionArea} from '@mui/material';
 import { Link } from 'react-router-dom';
 
+
 const ActivityCard = ({ activity }) => {
     return (
-        <Box sx={{ mt: 8 }}>
+        <Box sx={{ mt: 8, width: 280 }}>
             <CardActionArea
                 component={Link}
-                to={`/api/activities/${activity.id}`}
+                to={`/activities/${activity.id}`}
                 sx={{
                     textDecoration: 'none',
                     padding: 0,
-                    maxWidth: 280,
+                    height: 420,
+                    width: '100%',
                     backgroundColor: '#ffffff',
                     border: '2px solid #422800',
                     borderRadius: '30px',
                     boxShadow: '4px 4px 0 0 #422800',
                     display: 'flex',
                     flexDirection: 'column',
+                    justifyContent: 'space-between', // kad "kaina" ir kita būtų apačioje
                     color: '#422800',
                     transition: 'all 0.2s ease-in-out',
                     '&:hover': {
@@ -27,8 +30,8 @@ const ActivityCard = ({ activity }) => {
                         boxShadow: '2px 2px 0 0 #422800',
                         transform: 'translate(2px, 2px)',
                     },
-
-                }}>
+                }}
+            >
                 <CardMedia
                     component="img"
                     height="170"
@@ -47,7 +50,7 @@ const ActivityCard = ({ activity }) => {
                         {activity.title}
                     </Typography>
                     <Typography>
-                        {activity.description}
+                        {activity.descriptionChild}
                     </Typography>
                 <Box mt={2}>
                     <Box display="flex" justifyContent="space-between">
@@ -61,7 +64,7 @@ const ActivityCard = ({ activity }) => {
                         </Box>
                         <Box>
                             <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '14px' }}>
-                                {activity.location.split(',')[0]}
+                                {activity.location ? activity.location.split(',')[0] : 'Online'}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 Location
