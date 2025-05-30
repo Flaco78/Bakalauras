@@ -1,6 +1,7 @@
 package org.example.backend.controller;
 
 import org.example.backend.dto.ActivityDTO;
+import org.example.backend.dto.RecommendedActivityDTO;
 import org.example.backend.mapper.ActivityMapper;
 import org.example.backend.model.Activity;
 import org.example.backend.model.ChildProfile;
@@ -78,9 +79,18 @@ public class RecommendationController {
     @GetMapping("/collaboration-filtering/{childId}")
     public ResponseEntity<List<ActivityDTO>> getRecommendations(@PathVariable Long childId,
                                                                 @RequestParam(defaultValue = "5") int limit) {
+        // Gauti rekomenduojamas veiklas iš bendradarbiavimo filtravimo paslaugos
         List<Long> activityIds = filteringService.recommendActivitiesForChild(childId, limit);
+
+        // Patikrinti ar yra rekomenduojamų veiklų
+        if (activityIds.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        // Gauti veiklų objektus pagal jų ID
         List<Activity> activities = activityRepo.findAllById(activityIds);
 
+        // Konvertuoti į DTO
         List<ActivityDTO> activityDTOs = activities.stream()
                 .map(ActivityMapper::toDTO)
                 .collect(Collectors.toList());
@@ -110,15 +120,14 @@ public class RecommendationController {
     }
 
     @GetMapping("/nearby/{childId}")
-    public ResponseEntity<List<ActivityDTO>> getNearbyActivities(@PathVariable Long childId) {
+    public ResponseEntity<List<RecommendedActivityDTO>> getNearbyActivities(@PathVariable Long childId) {
         ChildProfile child = childRepo.findById(childId)
                 .orElseThrow(() -> new RuntimeException("Child not found"));
 
         List<Activity> allActivities = activityRepo.findAll();
-        List<Activity> nearby = recommendationService.recommendCloseActivities(child, allActivities);
+        List<RecommendedActivityDTO> nearby = recommendationService.recommendCloseActivities(child, allActivities);
 
-        List<ActivityDTO> result = nearby.stream()
-                .map(ActivityMapper::toDTO)
+        List<RecommendedActivityDTO> result = nearby.stream()
                 .limit(8)
                 .toList();
 

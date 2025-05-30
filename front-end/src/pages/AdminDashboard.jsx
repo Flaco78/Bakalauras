@@ -15,14 +15,21 @@ const AdminDashboard = () => {
 
     return (
         <Box sx={{ mt: 10, px: 4 }}>
-            <Typography variant="h4" sx={{ mb: 2 }}>Admin Panel</Typography>
-            <Tabs value={tabIndex} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
-                <Tab label="Users" />
-                <Tab label="Activities" />
-                <Tab label="Providers" />
-                <Tab label="Provider Requests" />
-                <Tab label="Activity Requests" />
-            </Tabs>
+            <Typography variant="h4" sx={{ mb: 2 }}>Administratoriaus langas</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Tabs
+                    value={tabIndex}
+                    onChange={handleTabChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                >
+                    <Tab label="Vartotojai" />
+                    <Tab label="Veiklos" />
+                    <Tab label="Tiekėjai" />
+                    <Tab label="Tiekėjų užklausos" />
+                    <Tab label="Veiklų užklausos" />
+                </Tabs>
+            </Box>
 
             <Box sx={{ mt: 4 }}>
                 {tabIndex === 0 && <UsersTab />}

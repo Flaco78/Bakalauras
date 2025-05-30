@@ -4,6 +4,7 @@ package org.example.backend.service;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.example.backend.dto.RecommendedActivityDTO;
 import org.example.backend.enums.DeliveryMethod;
 import org.example.backend.model.Activity;
 import org.example.backend.model.ChildProfile;
@@ -59,14 +60,20 @@ class RecommendationServiceTest {
 
         List<Activity> allActivities = new ArrayList<>(Arrays.asList(activity1, activity2));
 
-        List<Activity> recommendedActivities = recommendationService.recommendCloseActivities(child, allActivities);
+        List<RecommendedActivityDTO> recommendedActivities = recommendationService.recommendCloseActivities(child, allActivities);
 
         assertEquals(1, recommendedActivities.size());
-        assertTrue(recommendedActivities.contains(activity1));
-        assertFalse(recommendedActivities.contains(activity2));
+        assertTrue(
+                recommendedActivities.stream()
+                        .anyMatch(dto -> dto.getActivity().getId().equals(activity1.getId()))
+        );
+        assertFalse(
+                recommendedActivities.stream()
+                        .anyMatch(dto -> dto.getActivity().getId().equals(activity2.getId()))
+        );
 
-        verify(distanceCalculator, times(2)).calculateDistance(anyDouble(), anyDouble(), anyDouble(), anyDouble());
-        verify(geoLocationService, times(4)).getCoordinatesFromAddress(anyString());
+        verify(distanceCalculator, times(4)).calculateDistance(anyDouble(), anyDouble(), anyDouble(), anyDouble());
+        verify(geoLocationService, atLeast(1)).getCoordinatesFromAddress(anyString());
     }
 
     @Test

@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.backend.enums.BookingStatus;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,11 +15,12 @@ import org.example.backend.enums.BookingStatus;
 public class BookingDTO {
     private Long id;
     private Long childId;
+    private String email;
     private Long timeSlotId;
     private Long activityId;
     private String activityTitle;
-    private String startDateTime;
-    private String endDateTime;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
     private String providerEmail;
     private String childName;
     private BookingStatus status;

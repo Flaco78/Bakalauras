@@ -65,34 +65,34 @@ const ChildProfileForm = ({ child, onClose, isEdit, setChildrenProfiles }) => {
     };
     return (
         <form>
-            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Name</Typography>
+            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Vardas</Typography>
             <TextField
                 fullWidth
                 value={name}
                 onChange={(e) => setName(e.target.value)}
             />
-            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Birth date</Typography>
+            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Gimimo data</Typography>
             <TextField
                 type="date"
                 fullWidth
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
             />
-            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Gender</Typography>
+            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Lytis</Typography>
             <TextField
                 select
                 fullWidth
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
             >
-                <MenuItem value="MALE">Male</MenuItem>
-                <MenuItem value="FEMALE">Female</MenuItem>
-                <MenuItem value="OTHER">Other</MenuItem>
+                <MenuItem value="MALE">Vyras</MenuItem>
+                <MenuItem value="FEMALE">Moteris</MenuItem>
+                <MenuItem value="OTHER">Kita</MenuItem>
             </TextField>
 
-            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Max activity duration (minutes)</Typography>
+            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Didžiausias užsiėmimo trukmės laikas (minutėmis)</Typography>
             <TextField
-
+                helperText="Kiek daugiausia minučių vaikas gali skirti vienai veiklai per dieną."
                 type="number"
                 value={maxActivityDuration}
                 onChange={(e) => setMaxActivityDuration(e.target.value)}
@@ -100,7 +100,7 @@ const ChildProfileForm = ({ child, onClose, isEdit, setChildrenProfiles }) => {
                 required
             />
 
-            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Preferred delivery method</Typography>
+            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Pageidaujamas užsiėmimo būdas</Typography>
                 <TextField
                     select
                     fullWidth
@@ -108,15 +108,15 @@ const ChildProfileForm = ({ child, onClose, isEdit, setChildrenProfiles }) => {
                     onChange={(e) => setPreferredDeliveryMethod(e.target.value)}
                 >
                     <MenuItem value="ONLINE">Online</MenuItem>
-                    <MenuItem value="ONSITE">Onsite</MenuItem>
+                    <MenuItem value="ONSITE">Gyvai (vietoje)</MenuItem>
                 </TextField>
 
             <InterestSelector selected={interests} setSelected={setInterests} />
 
 
             <DialogActions>
-                <ButtonFunky onClick={onClose}>Cancel</ButtonFunky>
-                <ButtonFunky onClick={handleSubmit}>{isEdit ? 'Save' : 'Create'}</ButtonFunky>
+                <ButtonFunky onClick={onClose}>Atšaukti</ButtonFunky>
+                <ButtonFunky onClick={handleSubmit}>{isEdit ? 'Išsaugoti' : 'Sukurti'}</ButtonFunky>
             </DialogActions>
         </form>
     );

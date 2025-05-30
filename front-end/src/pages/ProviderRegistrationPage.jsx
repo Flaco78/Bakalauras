@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Container, Box, Typography,} from '@mui/material';
+import {Container, Box, Typography, FormControlLabel, Checkbox,} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ButtonFunky from "../components/ButtonFunky.jsx";
@@ -18,6 +18,7 @@ const ProviderRegistrationPage = () => {
     });
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -26,6 +27,10 @@ const ProviderRegistrationPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!agreedToTerms) {
+            alert("Turite sutikti su privatumo politika, kad galėtumėte registruotis.");
+            return;
+        }
 
         const newErrors = {};
 
@@ -162,7 +167,7 @@ const ProviderRegistrationPage = () => {
                         </>
                     )}
 
-                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Email</Typography>
+                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>El. paštas</Typography>
                     <TextFieldFunky
                         name="email"
                         fullWidth
@@ -170,7 +175,7 @@ const ProviderRegistrationPage = () => {
                         onChange={handleChange}
                     />
 
-                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Password</Typography>
+                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Slaptažodis</Typography>
                     <TextFieldFunky
                         name="password"
                         type="password"
@@ -179,7 +184,7 @@ const ProviderRegistrationPage = () => {
                         onChange={handleChange}
                     />
 
-                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Confirm Password</Typography>
+                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Patvirtinti slaptažodį</Typography>
                     <TextFieldFunky
                         name="confirmPassword"
                         type="password"
@@ -188,7 +193,7 @@ const ProviderRegistrationPage = () => {
                         onChange={handleChange}
                     />
 
-                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Phone</Typography>
+                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Telefono nr.</Typography>
                     <TextFieldFunky
                         name="phone"
                         fullWidth
@@ -196,7 +201,7 @@ const ProviderRegistrationPage = () => {
                         onChange={handleChange}
                     />
 
-                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Website</Typography>
+                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Puslapis</Typography>
                     <TextFieldFunky
                         name="website"
                         fullWidth
@@ -204,7 +209,7 @@ const ProviderRegistrationPage = () => {
                         onChange={handleChange}
                     />
 
-                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Description</Typography>
+                    <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Apie save</Typography>
                     <TextFieldFunky
                         name="description"
                         multiline
@@ -216,15 +221,29 @@ const ProviderRegistrationPage = () => {
                     />
                     {form.providerType === 'COMPANY' && (
                         <>
-                            <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Company Name</Typography>
+                            <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Kompanijos pavadinimas</Typography>
                             <TextFieldFunky name="companyName" fullWidth value={form.companyName} onChange={handleChange} />
 
                             <Typography variant="h6" sx={{ textAlign: 'left', mb: 1, mt: 2 }}>Įmonės kodas</Typography>
                             <TextFieldFunky name="companyCode" fullWidth value={form.companyCode} onChange={handleChange} />
                         </>
                     )}
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={agreedToTerms}
+                                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                color="primary"
+                            />
+                        }
+                        label={
+                            <Typography variant="body2">
+                                Sutinku su <a href="/privatumo-politika" target="_blank" rel="noopener noreferrer">privatumo politika</a>
+                            </Typography>
+                        }
+                    />
                     <ButtonFunky fullWidth sx={{ mt: 3 }} onClick={handleSubmit}>
-                        Submit Request
+                        Išsaugoti užklausą
                     </ButtonFunky>
                 </form>
             </Box>

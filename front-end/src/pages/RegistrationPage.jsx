@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ButtonFunky from "../components/ButtonFunky.jsx";
 import TextFieldFunky from "../components/TextFieldFunky.jsx";
+import { Checkbox, FormControlLabel } from '@mui/material';
 
 const RegistrationPage = () => {
     const [email, setEmail] = useState('');
@@ -12,10 +13,16 @@ const RegistrationPage = () => {
     const [address, setAddress] = useState('');
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
 
     const handleSignup = async (e) => {
         e.preventDefault();
+
+        if (!agreedToTerms) {
+            alert("Turite sutikti su privatumo politika, kad galėtumėte registruotis.");
+            return;
+        }
 
         if (password !== confirmPassword) {
             alert("Passwords don't match");
@@ -116,8 +123,22 @@ const RegistrationPage = () => {
                         }}
                         fullWidth
                     />
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={agreedToTerms}
+                                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                color="primary"
+                            />
+                        }
+                        label={
+                            <Typography variant="body2">
+                                Sutinku su <a href="/privatumo-politika" target="_blank" rel="noopener noreferrer">privatumo politika</a>
+                            </Typography>
+                        }
+                    />
                     <ButtonFunky type="submit" fullWidth sx={{mt: 2}}>
-                        Prisijungti
+                        Registruotis
                     </ButtonFunky>
                 </form>
             </Box>

@@ -20,7 +20,7 @@ const ActivityTable = ({ activities, onEdit, onDelete, onAddTimeslot }) => {
             });
             setTimeslots(response.data);
         } catch (err) {
-            console.error('Error fetching timeslots:', err);
+            console.error('Klaida gaunant timeslots:', err);
         }
     };
 
@@ -92,7 +92,6 @@ const ActivityTable = ({ activities, onEdit, onDelete, onAddTimeslot }) => {
                     </TableRow>
             ))}
             </TableBody>
-            {/* Timeslot Form Modal */}
             <Dialog open={openTimeslotModal} onClose={closeTimeslotForm} fullWidth>
                 <DialogTitle>Laikų sąrašas</DialogTitle>
                 <DialogContent>

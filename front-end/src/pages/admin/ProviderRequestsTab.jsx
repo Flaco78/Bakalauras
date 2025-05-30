@@ -66,7 +66,7 @@ const ProviderRequestsTab = () => {
 
     return (
         <Box>
-            <Typography variant="h4" gutterBottom>Providerių užklausos</Typography>
+            <Typography variant="h4" gutterBottom>Tiekėjų užklausos</Typography>
             <Grid container spacing={3}>
                 {providerRequests.length > 0 ? (
                     providerRequests.map(request => (

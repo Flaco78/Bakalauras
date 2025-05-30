@@ -1,11 +1,24 @@
 import React from 'react';
-import {CardContent, Typography, CardMedia, Box, CardActionArea} from '@mui/material';
+import {CardContent, Typography, CardMedia, Box, CardActionArea, Divider} from '@mui/material';
 import { Link } from 'react-router-dom';
+import {priceTypes} from "../utils/constants.js";
 
+const getDisplayLocation = (location) => {
+    if (!location) return 'Online';
+    const quoteMatch = location.match(/["„”](.*?)["’’]/);
+    if (quoteMatch && quoteMatch[1]) {
+        return quoteMatch[1].trim();
+    }
+    return location.split(',')[0].trim();
+};
 
 const ActivityCard = ({ activity }) => {
+    const getPriceTypeLabel = (priceTypeValue) => {
+        const priceType = priceTypes.find(pt => pt.value === priceTypeValue);
+        return priceType ? priceType.label : priceTypeValue;
+    };
     return (
-        <Box sx={{ mt: 8, width: 280 }}>
+        <Box sx={{ mt: 3, width: 300 }}>
             <CardActionArea
                 component={Link}
                 to={`/activities/${activity.id}`}
@@ -39,35 +52,38 @@ const ActivityCard = ({ activity }) => {
                     alt={activity.title}
                     sx={{
                         width: '100%',
-                        height: 250,
+                        height: 200,
                         objectFit: 'cover',
                         borderTopLeftRadius: '30px',
                         borderTopRightRadius: '30px',
                     }}
                 />
                 <CardContent sx={{ padding: 2 }}>
-                    <Typography sx={{ fontSize: '16px', fontFamily: 'roboto', fontWeight: '300' }}>
+                    <Box sx={{height: 110}}>
+                    <Typography sx={{ fontSize: '20px', fontWeight: '500', }}>
                         {activity.title}
                     </Typography>
-                    <Typography>
+                    <Typography sx = {{mb: 2, fontSize: '15px', fontWeight: '300'}}>
                         {activity.descriptionChild}
                     </Typography>
-                <Box mt={2}>
+                    </Box>
+                <Divider />
+                <Box sx ={{mt:1, }}>
                     <Box display="flex" justifyContent="space-between">
                         <Box>
                             <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '14px' }}>
                                 €{activity.price}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Per class
+                                {getPriceTypeLabel(activity.priceType)}
                             </Typography>
                         </Box>
                         <Box>
                             <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '14px' }}>
-                                {activity.location ? activity.location.split(',')[0] : 'Online'}
+                                {getDisplayLocation(activity.location)}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Location
+                                Vieta
                             </Typography>
                         </Box>
                         <Box>
@@ -75,7 +91,7 @@ const ActivityCard = ({ activity }) => {
                                 {activity.durationMinutes} min
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Duration
+                                Laikas
                             </Typography>
                         </Box>
                     </Box>

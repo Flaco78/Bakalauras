@@ -128,7 +128,7 @@ const UserProfile = () => {
             mt: 4
         }}>
             <Typography variant="h3" sx={{ fontFamily: '"Comic Sans MS", cursive, sans-serif', fontWeight: 'bold', color: 'rgba(0,0,0,0.87)' }}>
-                Profile
+                Mano paskyra
             </Typography>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 3 }}>
                 <img src="/Underline_01.png" alt="underline" style={{ width: '70%' }} />
@@ -141,7 +141,7 @@ const UserProfile = () => {
 
             <Divider sx={{ my: 3 }} />
 
-            <Typography variant="h5" sx={{textAlign: 'left', mb: 1}}>Email</Typography>
+            <Typography variant="h5" sx={{textAlign: 'left', mb: 1}}>El. paštas</Typography>
             <TextField
                 required
                 fullWidth
@@ -150,7 +150,7 @@ const UserProfile = () => {
             />
             {(roles.includes('USER')) && (
                 <>
-            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Address</Typography>
+            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Adresas</Typography>
             <TextField
                 required
                 fullWidth
@@ -159,7 +159,7 @@ const UserProfile = () => {
             />
             </>
              )}
-            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>New password</Typography>
+            <Typography variant="h5" sx={{textAlign: 'left', mb: 1, mt: 2}}>Naujas slaptažodis</Typography>
             <TextField
                 type="password"
                 fullWidth
@@ -172,7 +172,7 @@ const UserProfile = () => {
                 <>
             <Divider sx={{ my: 4 }} />
             <Typography variant="h3" sx={{ fontFamily: '"Comic Sans MS", cursive, sans-serif', fontWeight: 'bold', color: 'rgba(0,0,0,0.87)' }}>
-               Child Profile
+               Vaiko paskyra
             </Typography>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 3 }}>
                 <img src="/Underline_07.png" alt="underline" style={{ width: '70%' }} />
@@ -189,7 +189,7 @@ const UserProfile = () => {
                 ))}
             </Box>
 
-            <ButtonFunky sx={{ mt: 2 }} onClick={handleCreateChildProfile}>Create Child Profile</ButtonFunky>
+            <ButtonFunky sx={{ mt: 2 }} onClick={handleCreateChildProfile}>Sukurti vaiko profilį</ButtonFunky>
                 </>
             )}
 

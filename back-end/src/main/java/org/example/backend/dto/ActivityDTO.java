@@ -27,7 +27,9 @@ public class ActivityDTO {
     private PriceType priceType;
 
     private String providerName;
+    private String email;
     private String companyName;
+    private String phoneNumber;
     private String providerDescription;
     private ProviderType providerType;
 

@@ -4,14 +4,12 @@ import { InputBase, Box, Typography } from '@mui/material';
 const FunkyInput = ({ label, value, onChange, placeholder, sx = {}, ...props }) => {
     return (
         <Box>
-            {/* Rodome label'į */}
             {label && (
                 <Typography variant="h6" sx={{ textAlign: 'center', mb: 1, color: '#422800' }}>
                     {label}
                 </Typography>
             )}
 
-            {/* Įvedimo laukelis */}
             <Box
                 sx={{
                     border: '2px solid #422800',

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import { Card, CardContent, Typography, Avatar, Button, Box, IconButton, MenuItem, Menu } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import {genderOptions} from "../utils/constants.js";
 
 const genderImages = {
     MALE: "b4bbb43c991a660d15d0ff6cf8e62e7a.png",
@@ -75,10 +76,10 @@ const ChildProfileCard = ({ child, onEdit, onDelete }) => {
                         {name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        Age: {calculateAge(birthDate)}
+                        Metai: {calculateAge(birthDate)}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        Gender: {gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase()}
+                        Lytis: {genderOptions.find(opt => opt.value === gender)?.label || 'Kita'}
                     </Typography>
                 </CardContent>
             </Box>
@@ -110,11 +111,11 @@ const ChildProfileCard = ({ child, onEdit, onDelete }) => {
                     touchAction: 'manipulation',
 
                     '&:hover': {
-                        backgroundColor: '#fff', // Baltas fonas, kai paspaudžiamas
+                        backgroundColor: '#fff',
                     },
                     '&:active': {
-                        boxShadow: '2px 2px 0 0 #422800', // Tamsesnis šešėlis aktyvumui
-                        transform: 'translate(2px, 2px)', // Šiek tiek perkeliamas aktyvumui
+                        boxShadow: '2px 2px 0 0 #422800',
+                        transform: 'translate(2px, 2px)',
                     },
                 }}
             >
@@ -133,7 +134,7 @@ const ChildProfileCard = ({ child, onEdit, onDelete }) => {
                 open={open}
                 onClose={handleClose}
             >
-                <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                <MenuItem onClick={handleDelete}>Ištrinti</MenuItem>
             </Menu>
         </Box>
     </Card>

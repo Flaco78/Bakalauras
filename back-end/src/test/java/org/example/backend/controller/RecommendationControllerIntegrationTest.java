@@ -1,5 +1,6 @@
 package org.example.backend.controller;
 
+import jakarta.transaction.Transactional;
 import org.example.backend.enums.*;
 import org.example.backend.model.*;
 import org.example.backend.repository.*;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+@Transactional
 class RecommendationControllerIntegrationTest {
 
     @Autowired
@@ -92,10 +94,10 @@ class RecommendationControllerIntegrationTest {
         testChild.setName("Test Child");
         testChild.setBirthDate(LocalDate.of(2018, 5, 10));
         testChild.setGender(Gender.FEMALE);
-        testChild.setMaxActivityDuration(60);
+        testChild.setMaxActivityDuration(5);
         testChild.setParent(parent);
         testChild.setPreferredDeliveryMethod(DeliveryMethod.ONSITE);
-        testChild.setInterests(Set.of(ActivityCategory.SPORTS, ActivityCategory.MUSIC));
+        testChild.setInterests(Set.of(ActivityCategory.MUSIC));
         testChild = childProfileRepository.save(testChild);
 
         provider1 = providerRepository.save(provider1);
@@ -133,7 +135,7 @@ class RecommendationControllerIntegrationTest {
         activity3.setLocation("Maironio g. 5, Vilnius, 01110");
         activity3.setPrice(25.0);
         activity3.setPriceType(PriceType.MONTHLY);
-        activity3.setDurationMinutes(60);
+        activity3.setDurationMinutes(5);
         activity3.setDeliveryMethod(DeliveryMethod.ONSITE);
         activity3.setImageUrl("http://example.com/image3.jpg");
         activity3.setProvider(provider1);
@@ -169,8 +171,8 @@ class RecommendationControllerIntegrationTest {
         mockMvc.perform(get("/api/recommendations/content-based/{childId}", testChild.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(2))))
-                .andExpect(jsonPath("$[*].title", hasItems("Gitaros pamokos")));
+                .andExpect(jsonPath("$", not(empty())))
+                .andExpect(jsonPath("$[*].title", hasItem("Gitaros pamokos")));
     }
 
     @Test

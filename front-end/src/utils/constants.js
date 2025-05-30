@@ -23,7 +23,12 @@ export const roleOptions = [
     { id: 22, name: 'USER' },
     { id: 3, name: 'ADMIN' },
     { id: 23, name: 'PROVIDER'}
+];
 
+export const genderOptions = [
+    { value: 'MALE', label: 'Vyras' },
+    { value: 'FEMALE', label: 'Moteris' },
+    { value: 'OTHER', label: 'Kita' },
 ];
 
 export const providerTypeOptions = ['INDIVIDUAL', 'COMPANY'];

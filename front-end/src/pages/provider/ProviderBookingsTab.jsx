@@ -50,7 +50,6 @@ const ProviderBookingsTab = () => {
                 Užsakymai mano veikloms
             </Typography>
 
-            {/* Active or Approved Bookings */}
             <Typography variant="h6" sx={{ mt: 3 }}>
                 📌 Aktyvūs užsakymai
             </Typography>
@@ -63,7 +62,8 @@ const ProviderBookingsTab = () => {
                         <TableHead>
                             <TableRow sx={{ backgroundColor: '#ff9800' }}>
                                 <TableCell sx={{ fontWeight: 'bold', color: '#fff' }}>Veikla</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#fff' }}>Vaiko ID</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#fff' }}>Vaiko vardas</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#fff' }}>Kontaktai</TableCell>
                                 <TableCell sx={{ fontWeight: 'bold', color: '#fff' }}>Pradžia</TableCell>
                                 <TableCell sx={{ fontWeight: 'bold', color: '#fff' }}>Pabaiga</TableCell>
                                 <TableCell sx={{ fontWeight: 'bold', color: '#fff' }}>Statusas</TableCell>
@@ -71,10 +71,11 @@ const ProviderBookingsTab = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {bookings.filter(b => b.status !== 'CANCELED').map((b) => (
+                            {bookings.filter(b => b.status !== 'CANCELLED').map((b) => (
                                 <TableRow key={b.id}>
                                     <TableCell>{b.activityTitle}</TableCell>
-                                    <TableCell>{b.childId}</TableCell>
+                                    <TableCell>{b.childName}</TableCell>
+                                    <TableCell>{b.email}</TableCell>
                                     <TableCell>{b.startDateTime}</TableCell>
                                     <TableCell>{b.endDateTime}</TableCell>
                                     <TableCell>
@@ -122,7 +123,8 @@ const ProviderBookingsTab = () => {
                         <TableHead>
                             <TableRow sx={{ backgroundColor: '#bdbdbd' }}>
                                 <TableCell sx={{ fontWeight: 'bold' }}>Veikla</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Vaiko ID</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Vaiko vardas</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Kontaktai</TableCell>
                                 <TableCell sx={{ fontWeight: 'bold' }}>Pradžia</TableCell>
                                 <TableCell sx={{ fontWeight: 'bold' }}>Pabaiga</TableCell>
                                 <TableCell sx={{ fontWeight: 'bold' }}>Statusas</TableCell>
@@ -132,7 +134,8 @@ const ProviderBookingsTab = () => {
                             {bookings.filter(b => b.status === 'CANCELLED').map((b) => (
                                 <TableRow key={b.id}>
                                     <TableCell>{b.activityTitle}</TableCell>
-                                    <TableCell>{b.childId}</TableCell>
+                                    <TableCell>{b.childName}</TableCell>
+                                    <TableCell>{b.email}</TableCell>
                                     <TableCell>{b.startDateTime}</TableCell>
                                     <TableCell>{b.endDateTime}</TableCell>
                                     <TableCell>

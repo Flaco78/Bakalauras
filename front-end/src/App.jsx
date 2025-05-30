@@ -15,6 +15,7 @@ import {ToastContainer} from "react-toastify";
 import SearchPage from "./pages/SearchPage.jsx";
 import {ChildProvider} from "./context/ChildContext.jsx";
 import FavoriteActivities from "./pages/FavoriteActivities.jsx";
+import PrivatePolicyPage from "./pages/PrivatePolicyPage.jsx";
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -42,6 +43,7 @@ function App() {
                         <Route path="/register-provider" element={<ProviderRegistrationPage />} />
                         <Route path="/user-profile" element={<ProtectedRoute component={UserProfile} />} />
                         <Route path="/activities/:id" element={<ActivityCardDetails />} />
+                        <Route path="/privatumo-politika" element={<PrivatePolicyPage />}/>
                     </Routes>
             </ChildProvider>
         </AuthProvider>

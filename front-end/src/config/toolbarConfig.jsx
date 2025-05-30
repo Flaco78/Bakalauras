@@ -1,5 +1,5 @@
 const toolbarConfig = [
-    { path: "/admin", label: "Admin Panel", roles: ["ADMIN"] },
+    { path: "/admin", label: "Administratoriaus langas", roles: ["ADMIN"] },
     { path: "/provider", label: "Mano veiklos", roles: ["PROVIDER"] },
 ];
 

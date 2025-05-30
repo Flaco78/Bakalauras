@@ -42,8 +42,14 @@ const FavoriteActivities = () => {
                     .filter(b => b.status === 'ACTIVE')
                     .map(b => ({
                         ...activitiesMap.get(b.activityId),
-                        bookingId: b.id
+                        bookingId: b.id,
+                        startDateTime: b.startDateTime,
+                        endDateTime: b.endDateTime,
+                        childName: b.childName,
+                        status: b.status,
+                        providerEmail: b.providerEmail,
                     }));
+                console.log('bookings:', bookings);
 
                 setBookings(enrichedBookings);
             } catch (err) {
@@ -113,18 +119,43 @@ const FavoriteActivities = () => {
             {bookings.length > 0 ? (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                     {bookings.map(b => (
-
-                        <Box key={b.id} sx={{ position: 'relative' }}>
-                            <ActivityCard activity={b} />
-                            <Button
-                                onClick={() => handleCancelBooking(b.bookingId)}
-                                variant="outlined"
-                                color="error"
-                                size="small"
-                                sx={{ position: 'absolute', top: 10, right: 10 }}
+                        <Box key={b.id} sx={{ position: 'relative', width: 300 }}>
+                            <Box
+                                sx={{
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'space-between',
+                                    p: 3,
+                                    backgroundColor: '#f9f9f9',
+                                    border: '2px solid #422800',
+                                    borderRadius: '30px',
+                                    position: 'relative',
+                                }}
                             >
-                                Atšaukti
-                            </Button>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    🗓️ {new Date(b.startDateTime).toLocaleDateString('lt-LT')}
+                                    /
+                                    {new Date(b.endDateTime).toLocaleDateString('lt-LT')}
+                                    <br />
+                                    🕓 {new Date(b.startDateTime).toLocaleTimeString('lt-LT', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })} - {new Date(b.endDateTime).toLocaleTimeString('lt-LT', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                                </Box>
+                                <Button
+                                    onClick={() => handleCancelBooking(b.bookingId)}
+                                    variant="outlined"
+                                    color="error"
+                                    size="small"
+                                >
+                                    Atšaukti
+                                </Button>
+                            </Box>
+                            <ActivityCard activity={b} />
                         </Box>
                     ))}
                 </Box>

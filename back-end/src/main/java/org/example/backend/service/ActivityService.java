@@ -120,7 +120,7 @@ public class ActivityService {
                                             Integer minDuration, Integer maxDuration,
                                             String category, String priceType, String deliveryMethod) {
         List<Activity> allActivities = activityRepository.findAll();
-        List<ScoredActivity> scoredResults = new ArrayList<>();
+        Map<Long, ScoredActivity> scoredMap = new java.util.HashMap<>();
         LevenshteinDistance levenshtein = new LevenshteinDistance();
 
 
@@ -130,22 +130,38 @@ public class ActivityService {
             ActivityCategory keywordCategory = keywordToCategory.get(query.toLowerCase());
             List<Activity> byKeywordCategory = activityRepository.findByCategory(keywordCategory);
             for (Activity activity : byKeywordCategory) {
-                scoredResults.add(new ScoredActivity(activity, 100));
+                scoredMap.merge(
+                        activity.getId(),
+                        new ScoredActivity(activity, 100),
+                        (oldVal, newVal) -> oldVal.score < newVal.score ? newVal : oldVal
+                );
             }
         }
 
         // 2.5 Papildoma - repo paieška pagal title, description, location ir kt.
         List<Activity> repoMatches = activityRepository.searchByKeyword(query);
         for (Activity activity : repoMatches) {
-            scoredResults.add(new ScoredActivity(activity, 70));
+            scoredMap.merge(
+                    activity.getId(),
+                    new ScoredActivity(activity, 70),
+                    (oldVal, newVal) -> oldVal.score < newVal.score ? newVal : oldVal
+            );
         }
 
         // 2.7 Jeigu pavadinimą query atitinka beveik pilnai
         for (Activity activity : allActivities) {
             if (activity.getTitle().equalsIgnoreCase(query)) {
-                scoredResults.add(new ScoredActivity(activity, 95));
+                scoredMap.merge(
+                        activity.getId(),
+                        new ScoredActivity(activity, 95),
+                        (oldVal, newVal) -> oldVal.score < newVal.score ? newVal : oldVal
+                );
             } else if (activity.getTitle().toLowerCase().startsWith(query.toLowerCase())) {
-                scoredResults.add(new ScoredActivity(activity, 90));
+                scoredMap.merge(
+                        activity.getId(),
+                        new ScoredActivity(activity, 90),
+                        (oldVal, newVal) -> oldVal.score < newVal.score ? newVal : oldVal
+                );
             }
         }
 
@@ -170,12 +186,16 @@ public class ActivityService {
             }
 
             if (bestScore > 30) {
-                scoredResults.add(new ScoredActivity(activity, bestScore));
+                scoredMap.merge(
+                        activity.getId(),
+                        new ScoredActivity(activity, bestScore),
+                        (oldVal, newVal) -> oldVal.score < newVal.score ? newVal : oldVal
+                );
             }
         }
 
         List<ScoredActivity> filteredResults = filterActivities(
-                scoredResults, minPrice, maxPrice, location,
+                new ArrayList<>(scoredMap.values()), minPrice, maxPrice, location,
                 minDuration, maxDuration, category, priceType, deliveryMethod
         );
         filteredResults.sort((a, b) -> Integer.compare(b.score, a.score));

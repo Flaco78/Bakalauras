@@ -299,9 +299,23 @@
                                 WebkitOverflowScrolling: 'touch',
                             }}
                         >
-                            {nearbyActivities.map((activity) => (
-                                <Box key={activity.id} sx={{ minWidth: 280, flex: '0 0 auto' }}>
-                                    <ActivityCard activity={activity} />
+                            {nearbyActivities.map((rec, idx) => (
+                                <Box key={rec.activity.id || idx} sx={{ minWidth: 280, flex: '0 0 auto' }}>
+                                    <ActivityCard activity={rec.activity} />
+                                    {/* Atstumas ir kelionės laikas po kortele */}
+                                    <Box sx={{ mt: 1, textAlign: 'center', color: 'text.secondary', fontSize: 14 }}>
+                                        {rec.distanceKm !== undefined && (
+                                            <span>
+                                                 🏃‍♂️ Atstumas: {rec.distanceKm.toFixed(1)} km
+                                            </span>
+                                        )}
+                                        {rec.travelTimeMinutes !== undefined && (
+                                            <span>
+                                            {rec.distanceKm !== undefined ? ' | ' : ''}
+                                                ⏱️ Laikas: {Math.round(rec.travelTimeMinutes)} min
+                                            </span>
+                                        )}
+                                    </Box>
                                 </Box>
                             ))}
                         </Box>

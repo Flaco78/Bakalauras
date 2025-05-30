@@ -48,11 +48,11 @@ public class ChildProfile {
     private Gender gender;
 
     @Column(nullable = false)
-    private int maxActivityDuration;  // Laiko limitas minutėmis
+    private int maxActivityDuration;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private DeliveryMethod preferredDeliveryMethod;  // ONLINE arba ONSITE
+    private DeliveryMethod preferredDeliveryMethod;
 
     @ManyToOne
     @JoinColumn(name = "parent_id", nullable = false)
@@ -60,7 +60,6 @@ public class ChildProfile {
     private User parent;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonBackReference
     private Set<ActivityInteraction> activityInteractions = new HashSet<>();
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)

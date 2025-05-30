@@ -13,10 +13,11 @@ public class ActivityInteraction {
     private Long id;
 
     @ManyToOne
-//    @JsonManagedReference
     @JoinColumn(name = "child_id")
     private ChildProfile child;
-    @ManyToOne private Activity activity;
+
+    @ManyToOne
+    private Activity activity;
 
     private int views;
     private boolean favorited;

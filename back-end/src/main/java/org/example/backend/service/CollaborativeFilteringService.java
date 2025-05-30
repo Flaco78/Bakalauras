@@ -1,6 +1,5 @@
 package org.example.backend.service;
 
-import org.example.backend.dto.ActivitySimilarityDTO;
 import org.example.backend.model.ActivityInteraction;
 import org.example.backend.repository.ActivityInteractionRepository;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ public class CollaborativeFilteringService {
     public CollaborativeFilteringService(ActivityInteractionRepository interactionRepo) {
         this.interactionRepo = interactionRepo;
     }
-
 
     public Map<Long, Map<Long, Double>> buildInteractionMatrix() {
         List<ActivityInteraction> interactions = interactionRepo.findAll();
@@ -34,35 +32,40 @@ public class CollaborativeFilteringService {
             if (score == 0) continue;
 
             interactionMatrix
-                    .computeIfAbsent(activityId, k -> new HashMap<>())
-                    .put(childId, score);
+                    .computeIfAbsent(childId, k -> new HashMap<>())
+                    .put(activityId, score);
         }
 
         return interactionMatrix;
     }
 
-    public Map<Long, List<ActivitySimilarityDTO>> buildSimilarityMatrix(int k) {
-        Map<Long, Map<Long, Double>> interactionMatrix = buildInteractionMatrix();
-        Map<Long, List<ActivitySimilarityDTO>> similarityMatrix = new HashMap<>();
+    public Map<Long, List<Long>> buildChildSimilarityMatrix(int k) {
+        Map<Long, Map<Long, Double>> childInteractionMatrix = buildInteractionMatrix();
+        Map<Long, List<Long>> childSimilarityMatrix = new HashMap<>();
 
-        for (Long a1 : interactionMatrix.keySet()) {
-            Map<Long, Double> vecA = interactionMatrix.get(a1);
-            List<ActivitySimilarityDTO> similarities = new ArrayList<>();
+        for (Long childA : childInteractionMatrix.keySet()) {
+            Map<Long, Double> vecA = childInteractionMatrix.get(childA);
+            List<Map.Entry<Long, Double>> similarities = new ArrayList<>();
 
-            for (Long a2 : interactionMatrix.keySet()) {
-                if (a1.equals(a2)) continue;
+            for (Long childB : childInteractionMatrix.keySet()) {
+                if (childA.equals(childB)) continue;
 
-                Map<Long, Double> vecB = interactionMatrix.get(a2);
+                Map<Long, Double> vecB = childInteractionMatrix.get(childB);
                 double sim = cosineSimilarity(vecA, vecB);
-
-                similarities.add(new ActivitySimilarityDTO(a2, sim));
+                System.out.println("Similarity between child " + childA + " and child " + childB + ": " + sim);
+                similarities.add(Map.entry(childB, sim));
             }
 
-            similarities.sort((s1, s2) -> Double.compare(s2.similarity(), s1.similarity()));
-            similarityMatrix.put(a1, similarities.subList(0, Math.min(k, similarities.size())));
+            similarities.sort((s1, s2) -> Double.compare(s2.getValue(), s1.getValue()));
+            List<Long> topSimilarChildren = similarities.stream()
+                    .limit(k)
+                    .map(Map.Entry::getKey)
+                    .toList();
+            System.out.println("Top similar children for child " + childA + ": " + topSimilarChildren);
+            childSimilarityMatrix.put(childA, topSimilarChildren);
         }
 
-        return similarityMatrix;
+        return childSimilarityMatrix;
     }
 
     private double cosineSimilarity(Map<Long, Double> vec1, Map<Long, Double> vec2) {
@@ -84,58 +87,38 @@ public class CollaborativeFilteringService {
     }
 
     public List<Long> recommendActivitiesForChild(Long childId, int limit) {
-        Map<Long, Map<Long, Double>> interactionMatrix = buildInteractionMatrix();
-        Map<Long, List<ActivitySimilarityDTO>> similarityMatrix = buildSimilarityMatrix(5); // top 5 neighbors per activity
+        Map<Long, Map<Long, Double>> childInteractionMatrix = buildInteractionMatrix();
+        Map<Long, List<Long>> childSimilarityMatrix = buildChildSimilarityMatrix(5); // top 5 similar children
 
-        // Step 1: Find all activities the child has interacted with (favorited or registered)
-        Set<Long> interactedActivityIds = new HashSet<>();
-        for (Map.Entry<Long, Map<Long, Double>> entry : interactionMatrix.entrySet()) {
-            Long activityId = entry.getKey();
-            Map<Long, Double> childScores = entry.getValue();
-            if (childScores.containsKey(childId)) {
-                interactedActivityIds.add(activityId);
-            }
-        }
-
-        System.out.println("Child " + childId + " interacted with activities: " + interactedActivityIds);
-
-        // Step 2: Accumulate scores for similar activities
+        // Veiklos, kurias vaikas jau matė
+        Set<Long> viewedActivities = childInteractionMatrix.getOrDefault(childId, new HashMap<>()).keySet();
         Map<Long, Double> recommendationScores = new HashMap<>();
 
-        for (Long interactedActivityId : interactedActivityIds) {
-            List<ActivitySimilarityDTO> similarActivities = similarityMatrix.get(interactedActivityId);
-            if (similarActivities == null) continue;
+        // Panašūs vaikai
+        List<Long> similarChildren = childSimilarityMatrix.getOrDefault(childId, new ArrayList<>());
+        System.out.println("Similar children for child " + childId + ": " + similarChildren);
+        System.out.println("Viewed activities for child " + childId + ": " + viewedActivities);
+        for (Long similarChild : similarChildren) {
+            Map<Long, Double> similarChildActivities = childInteractionMatrix.get(similarChild);
+            for (Map.Entry<Long, Double> entry : similarChildActivities.entrySet()) {
+                Long activityId = entry.getKey();
+                double score = entry.getValue();
 
-            System.out.println("For activity " + interactedActivityId + ", similar activities are:");
-            for (ActivitySimilarityDTO similar : similarActivities) {
-                Long similarActivityId = similar.activityId();
-                if (interactedActivityIds.contains(similarActivityId)) continue; // praleisti jeigu jau buvo matyta
+                // Praleisti, jei vaikas jau matė veiklą
+                if (viewedActivities.contains(activityId)) continue;
 
-                double existingScore = recommendationScores.getOrDefault(similarActivityId, 0.0);
-                recommendationScores.put(similarActivityId, existingScore + similar.similarity());
-
-                System.out.println("  Activity " + similarActivityId + " with similarity score " + similar.similarity());
+                recommendationScores.put(activityId,
+                        recommendationScores.getOrDefault(activityId, 0.0) + score);
             }
         }
 
-        // Step 3: Sort by score and return top N
-        List<Map.Entry<Long, Double>> sorted = recommendationScores.entrySet().stream()
-                .sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()))
-                .toList();
-
-        System.out.println("Final recommended activities for child " + childId + ":");
-        for (Map.Entry<Long, Double> entry : sorted) {
-            System.out.println("  Activity " + entry.getKey() + " with score " + entry.getValue());
-        }
-
-        // Step 3: Sort by score and return top N
+        System.out.println("Recommendation scores for child " + childId + ": " + recommendationScores);
+        // Surūšiuoti pagal aukščiausią bendrą balą
         return recommendationScores.entrySet().stream()
                 .sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()))
                 .limit(limit)
                 .map(Map.Entry::getKey)
-                .toList(); // returns List<Long> of activity IDs
-
+                .toList();
     }
-
 
 }

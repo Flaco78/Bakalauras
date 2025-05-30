@@ -27,7 +27,7 @@ const LandingPage = () => {
             </Box>
             <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
                 <ButtonFunky onClick={() => navigate('/register')}>
-                    Prisijungti kaip tėvas / mama
+                    Užsiregistruoti kaip tėtis / mama
                 </ButtonFunky>
                 <ButtonFunky onClick={() => navigate('/register-provider')}>
                     Užsiregistruoti kaip veiklos teikėjas

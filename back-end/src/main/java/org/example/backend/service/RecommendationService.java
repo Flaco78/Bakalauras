@@ -1,6 +1,9 @@
 package org.example.backend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.dto.ActivityDTO;
+import org.example.backend.dto.RecommendedActivityDTO;
+import org.example.backend.mapper.ActivityMapper;
 import org.example.backend.model.Activity;
 import org.example.backend.model.ChildProfile;
 import org.springframework.stereotype.Service;
@@ -14,8 +17,8 @@ public class RecommendationService {
     private final GeoLocationService geoLocationService;
     private final DistanceCalculator distanceCalculator;
 
-    public List<Activity> recommendCloseActivities(ChildProfile child, List<Activity> allActivities) {
-        List<Activity> recommendedActivities = new ArrayList<>();
+    public List<RecommendedActivityDTO> recommendCloseActivities(ChildProfile child, List<Activity> allActivities) {
+        List<RecommendedActivityDTO> recommendedActivities = new ArrayList<>();
 
         String childAddress = child.getParent() != null ? child.getParent().getAddress() : null;
 
@@ -45,11 +48,14 @@ public class RecommendationService {
                 continue;
             }
 
+            double distance = getDistanceInKm(childAddress, activityLocation);
+
             boolean isReachable = travelTime <= child.getMaxActivityDuration();
 
             if (validDeliveryMethod && isReachable) {
                 System.out.println("✅ Added: " + activity.getTitle() + " — Travel time: " + travelTime + " min");
-                recommendedActivities.add(activity);
+                ActivityDTO dto = ActivityMapper.toDTO(activity);
+                recommendedActivities.add(new RecommendedActivityDTO(dto, travelTime, distance));
             } else {
                 System.out.println("❌ Skipped: " + activity.getTitle() + " — Travel time too long (" + travelTime + " min)");
             }
@@ -76,8 +82,7 @@ public class RecommendationService {
             double distance = distanceCalculator.calculateDistance(lat1, lon1, lat2, lon2);
             System.out.println("Calculated distance between addresses: " + distance + " km");
 
-            // Optional: convert distance to estimated travel time
-            double avgSpeedKmh = 35.0; // can be adjusted depending on how strict you want this
+            double avgSpeedKmh = 30.0;
             double estimatedTimeMinutes = (distance / avgSpeedKmh) * 60;
             System.out.println("Estimated travel time: " + estimatedTimeMinutes + " minutes");
 
@@ -89,5 +94,20 @@ public class RecommendationService {
         }
     }
 
+    public double getDistanceInKm(String startAddress, String destinationAddress) {
+        try {
+            double[] startCoordinates = geoLocationService.getCoordinatesFromAddress(startAddress);
+            double[] destinationCoordinates = geoLocationService.getCoordinatesFromAddress(destinationAddress);
 
+            double lat1 = startCoordinates[0];
+            double lon1 = startCoordinates[1];
+            double lat2 = destinationCoordinates[0];
+            double lon2 = destinationCoordinates[1];
+
+            return distanceCalculator.calculateDistance(lat1, lon1, lat2, lon2);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

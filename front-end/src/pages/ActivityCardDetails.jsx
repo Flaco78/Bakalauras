@@ -19,7 +19,7 @@ import {Grid} from "@mui/system";
 import { useChild } from '../context/ChildContext.jsx';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import {priceTypes} from "../utils/constants.js";
+import {categories, priceTypes} from "../utils/constants.js";
 
 const ActivityCardDetails = () => {
     const { id } = useParams();
@@ -253,9 +253,9 @@ const ActivityCardDetails = () => {
                             rightContent={
                                 <Box sx={{mt:2}}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                                        <UserAvatar size={50} name={activity.providerName || 'Provider'} />
+                                        <UserAvatar size={50} name={activity.email || 'Provider'} />
                                         <Typography sx={{ textAlign: 'left' }}>
-                                            {activity.providerName || 'N/A'}
+                                            {activity.email || 'N/A'}
                                         </Typography>
                                     </Box>
                                     <Typography sx={{ textAlign: 'left' }}>
@@ -302,8 +302,8 @@ const ActivityCardDetails = () => {
                                             >
                                                 <Box>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                                        <UserAvatar size={50} name={review.user.email || 'Vartotojas'} />
-                                                        <SansTypography variant="h6" sx={{ textAlign: 'left' }}>
+                                                        <UserAvatar size={30} name={review.user.email || 'Vartotojas'} />
+                                                        <SansTypography variant="h6" sx={{ textAlign: 'left', fontSize: '1rem'  }}>
                                                             {review.user.email}
                                                         </SansTypography>
                                                     </Box>
@@ -388,8 +388,16 @@ const ActivityCardDetails = () => {
                                             disabled={timeslot.currentParticipants >= timeslot.maxParticipants}
                                         >
                                             🗓️ {new Date(timeslot.startDateTime).toLocaleDateString('lt-LT')}
-                                            <br />
-                                            🕓 {new Date(timeslot.startDateTime).toLocaleTimeString('lt-LT', { hour: '2-digit', minute: '2-digit' })} - {new Date(timeslot.endDateTime).toLocaleTimeString('lt-LT', { hour: '2-digit', minute: '2-digit' })}
+                                            /
+                                            {new Date(timeslot.endDateTime).toLocaleDateString('lt-LT')}
+                                            <br/>
+                                            🕓 {new Date(timeslot.startDateTime).toLocaleTimeString('lt-LT', {
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })} - {new Date(timeslot.endDateTime).toLocaleTimeString('lt-LT', {
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
                                         </Button>
 
                                     ))
@@ -469,9 +477,13 @@ const ActivityCardDetails = () => {
                             : activity.location}
                     </Typography>
                     <Typography sx={{ mb: 1 }}>
-                        {getCategoryEmoji(activity.category)} {activity.category.charAt(0).toUpperCase()
-                        + activity.category.slice(1).toLowerCase()}
+                        {getCategoryEmoji(activity.category)}{" "}
+                        {categories.find((cat) => cat.value === activity.category)?.label ||
+                            activity.category.charAt(0).toUpperCase() + activity.category.slice(1).toLowerCase()}
                     </Typography>
+                        <Typography sx={{mb: 1}}>
+                            📞 {activity.phoneNumber}
+                        </Typography>
                 </Box>
                     <Divider />
                     <ButtonFunky sx={{ mt: 2 }} onClick={() => timeslotRef.current?.scrollIntoView({ behavior: 'smooth' })}>

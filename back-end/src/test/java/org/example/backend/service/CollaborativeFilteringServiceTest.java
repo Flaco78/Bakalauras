@@ -58,17 +58,18 @@ class CollaborativeFilteringServiceTest {
 
         Map<Long, Map<Long, Double>> matrix = service.buildInteractionMatrix();
 
-        assertEquals(2, matrix.size());
-        assertEquals(2, matrix.get(1L).size());
-        assertEquals(2, matrix.get(2L).size());
-        assertEquals(0.9, matrix.get(1L).get(101L), 1e-6);
-        assertEquals(1.0, matrix.get(1L).get(102L));
-        assertEquals(0.3, matrix.get(2L).get(101L));
-        assertEquals(0.6, matrix.get(2L).get(103L));
+        assertEquals(3, matrix.size());
+        assertEquals(2, matrix.get(101L).size());
+        assertEquals(1, matrix.get(102L).size());
+        assertEquals(1, matrix.get(103L).size());
+        assertEquals(0.9, matrix.get(101L).get(1L), 1e-6);
+        assertEquals(0.3, matrix.get(101L).get(2L), 1e-6);
+        assertEquals(1.0, matrix.get(102L).get(1L), 1e-6);
+        assertEquals(0.6, matrix.get(103L).get(2L), 1e-6);
     }
 
     @Test
-    void testBuildSimilarityMatrix_topK() {
+    void testBuildChildSimilarityMatrix_topK() {
         List<ActivityInteraction> interactions = List.of(
                 createInteraction(1L, 101L, 1, true, false), // 0.9
                 createInteraction(1L, 102L, 0, false, true), // 1.0
@@ -79,18 +80,16 @@ class CollaborativeFilteringServiceTest {
         );
         when(interactionRepo.findAll()).thenReturn(interactions);
 
-        Map<Long, List<ActivitySimilarityDTO>> simMatrix = service.buildSimilarityMatrix(2);
+        Map<Long, List<Long>> simMatrix = service.buildChildSimilarityMatrix(2);
 
-        // Each activity should have up to 2 most similar activities
-        assertEquals(3, simMatrix.size());
-        for (List<ActivitySimilarityDTO> sims : simMatrix.values()) {
+        // Each child should have up to 2 most similar children
+        assertEquals(4, simMatrix.size());
+        for (List<Long> sims : simMatrix.values()) {
             assertTrue(sims.size() <= 2);
         }
-        // Similarity scores should be between 0 and 1
-        for (List<ActivitySimilarityDTO> sims : simMatrix.values()) {
-            for (ActivitySimilarityDTO dto : sims) {
-                assertTrue(dto.similarity() >= 0.0 && dto.similarity() <= 1.0);
-            }
+        // Similarity is not directly checked here, but we can check that similar children are not the same as the child itself
+        for (Map.Entry<Long, List<Long>> entry : simMatrix.entrySet()) {
+            assertFalse(entry.getValue().contains(entry.getKey()));
         }
     }
 
